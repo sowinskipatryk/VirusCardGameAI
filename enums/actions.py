@@ -2,12 +2,5 @@ from enum import IntEnum
 
 
 class Action(IntEnum):
-    PLAY_VIRUS_CARD = 1
-    PLAY_ORGAN_CARD = 2
-    PLAY_MEDICINE_CARD = 3
-    PLAY_TRANSPLANT_CARD = 4
-    PLAY_ORGAN_THIEF_CARD = 5
-    PLAY_CONTAGION_CARD = 6
-    PLAY_LATEX_GLOVE_CARD = 7
-    PLAY_MEDICAL_ERROR_CARD = 8
-    DISCARD_CARDS = 9
+    PLAY = 0
+    DISCARD = 1

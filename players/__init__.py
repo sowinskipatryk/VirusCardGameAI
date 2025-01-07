@@ -1,8 +1,8 @@
 from enums import PlayerType
-from ai_player import AIPlayer
-from base_player import BasePlayer
-from human_player import HumanPlayer
-from random_player import RandomPlayer
+from players.ai_player import AIPlayer
+from players.base_player import BasePlayer
+from players.human_player import HumanPlayer
+from players.random_player import RandomPlayer
 
 
 class PlayerFactory:

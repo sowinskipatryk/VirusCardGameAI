@@ -13,7 +13,7 @@ class VirusGame:
         self.players = config.players
         self.num_players = len(self.players)
         self.deck = Deck()
-        self.current_player_index = random.randint(0, self.num_players)
+        self.current_player_index = random.randint(0, self.num_players - 1)
 
     def start(self) -> None:
         winner = None
@@ -28,17 +28,21 @@ class VirusGame:
     def play_turn(self) -> bool:
         current_player = self.players[self.current_player_index]
         if len(current_player.hand) == 3:
-            current_player.make_move()
+            is_error = current_player.make_move(self)
             if self.check_win_condition(current_player):
                 return True
         self.complete_hand(current_player)
         self.next_player()
 
     def next_player(self) -> None:
-        self.current_player_index = (self.current_player_index + 1) % len(self.players)
+        self.current_player_index = (self.current_player_index + 1) % self.num_players
 
     def complete_hand(self, player: BasePlayer) -> None:
         amount = 3 - len(player.hand)
         for _ in range(amount):
             drawn_card = self.deck.draw_card()
             player.hand.append(drawn_card)
+
+    def get_opponents(self, player: BasePlayer):
+        opponents = [opponent for opponent in self.players if opponent != player]
+        return opponents

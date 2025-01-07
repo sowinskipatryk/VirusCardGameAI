@@ -1,4 +1,4 @@
-from players import BasePlayer
+from players.base_player import BasePlayer
 
 
 class AIPlayer(BasePlayer):

@@ -1,7 +1,7 @@
 from enum import StrEnum
 
 
-class TherapyName(StrEnum):
+class TreatmentName(StrEnum):
     TRANSPLANT = "Transplant"
     ORGAN_THIEF = "OrganThief"
     CONTAGION = "Contagion"

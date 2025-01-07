@@ -1,9 +1,9 @@
-from enum import IntEnum
+from enum import StrEnum
 
 
-class CardColor(IntEnum):
-    RED = 0
-    YELLOW = 1
-    BLUE = 2
-    GREEN = 3
-    MULTICOLORED = 4
+class CardColor(StrEnum):
+    RED = 'Red'
+    YELLOW = 'Yellow'
+    BLUE = 'Blue'
+    GREEN = 'Green'
+    WILD = 'Wild'
