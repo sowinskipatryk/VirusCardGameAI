@@ -19,9 +19,11 @@ class Deck:
             self.cards = self.discard_pile[::-1]
             self.discard_pile = []
         card = self.cards.pop()
+        print('drawing', card)
         return card
 
     def discard(self, card: Card) -> None:
+        print('discarding', card)
         self.discard_pile.append(card)
 
     def _create_cards(self) -> None:
