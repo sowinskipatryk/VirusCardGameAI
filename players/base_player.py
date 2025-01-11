@@ -6,7 +6,6 @@ from enums import Action
 
 
 class BasePlayer(ABC):
-    @classmethod
     def __init__(self, name: str):
         self.name = name
         self.hand: List[Card] = []
@@ -15,8 +14,11 @@ class BasePlayer(ABC):
     def __str__(self) -> str:
         return self.name
 
-    def get_card_from_hand(self, card_id):
+    def remove_hand_card_by_id(self, card_id):
         return self.hand.pop(card_id)
+
+    def get_hand_card_by_id(self, card_id):
+        return self.hand[card_id]
 
     def add_card_to_hand(self, card: Card) -> None:
         self.hand.append(card)
@@ -26,6 +28,7 @@ class BasePlayer(ABC):
 
     def make_move(self, game) -> bool:
         action = self.decide_action()
+        print('Decision:', action.name)
         if action == Action.PLAY:
             card_id = self.decide_card_to_play()
             if not card_id:
@@ -44,14 +47,18 @@ class BasePlayer(ABC):
         pass
 
     def play_card(self, game, card_id) -> bool:
-        card = self.get_card_from_hand(card_id)
-        is_error = card.play(game, self)
+        card = self.get_hand_card_by_id(card_id)
+        print('Chosen card:', card)
+        is_error = card.play(game, self) or False
+        if not is_error:
+            self.remove_hand_card_by_id(card_id)
+        print(f'Success: {not is_error}')
         return is_error
 
     def discard_cards(self, game, card_ids):
         sorted_ids = sorted(card_ids, reverse=True)
         for card_id in sorted_ids:
-            card = self.get_card_from_hand(card_id)
+            card = self.remove_hand_card_by_id(card_id)
             if not card:
                 return True
             game.deck.discard(card)
