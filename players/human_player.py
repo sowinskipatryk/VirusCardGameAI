@@ -1,6 +1,74 @@
+from typing import List
+
 from players import BasePlayer
+from enums import Action, CardColor
 
 
 class HumanPlayer(BasePlayer):
-    def decide_action(self):
-        raise NotImplementedError
+    def decide_action(self, opponents):
+        print(f"Your hand: {self.hand}")
+        print(f"Your body: {self.body}")
+
+        while True:
+            choice = input("Choose action (Play or Discard): ").lower()
+            if choice == 'play':
+                return Action.PLAY
+            elif choice == 'discard':
+                return Action.DISCARD
+            else:
+                print("Invalid choice.")
+
+    def decide_opponent(self, opponents, card):
+        print("\nOpponents:")
+        for i, opponent in enumerate(opponents):
+            print(f"{i + 1}. {opponent.name} body: {opponent.body}")
+
+        while True:
+            try:
+                choice = int(input("Choose opponent (enter opponent number): "))
+                if 1 <= choice <= len(opponents):
+                    return opponents[choice - 1]
+                else:
+                    print("Invalid choice. Please enter a valid opponent number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
+
+    def decide_organ_color(self, target_body=None):
+        while True:
+            try:
+                choice = int(input("Choose organ color (1: Red, 2: Yellow, 3: Blue, 4: Green): "))
+                if 1 <= choice <= 4:
+                    return list(CardColor)[choice - 1]
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 4.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
+    def decide_card_to_play(self) -> int:
+        for i, card in enumerate(self.hand):
+            print(f"{i + 1}. {card}")
+
+        while True:
+            try:
+                choice = int(input("Choose card to play (enter card number): "))
+                if 1 <= choice <= len(self.hand):
+                    return choice - 1
+                else:
+                    print("Invalid choice. Please enter a valid card number.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
+    def decide_cards_to_discard(self) -> List[int]:
+        for i, card in enumerate(self.hand):
+            print(f"{i + 1}. {card}")
+        while True:
+            try:
+                choices_str = input("Choose cards to discard (enter card numbers separated by commas): ")
+                choices = [int(c.strip()) for c in choices_str.split(",")]
+                if all(1 <= c <= len(self.hand) for c in choices) and len(choices) <= 3:
+                    return [c - 1 for c in choices]
+                else:
+                    print("Invalid choices. Please enter valid card numbers separated by commas.")
+            except ValueError:
+                print("Invalid input. Please enter numbers separated by commas.")

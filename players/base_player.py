@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from collections import defaultdict
 
-from cards import Card, Organ, CardType
+from cards import Card, Organ
 from enums import Action
 
 
@@ -44,13 +44,13 @@ class BasePlayer(ABC):
         self.hand.remove(card)
 
     def make_move(self, game) -> bool:
-        opponents = game.get_opponents()
+        opponents = game.get_opponents(self)
         action = self.decide_action(opponents)
         print('Decision:', action.name)
         if action == Action.PLAY:
             card_id = self.decide_card_to_play()
             print('Card id:', card_id)
-            if not card_id:
+            if card_id is None:
                 return True
             return self.play_card(game, card_id)
         elif action == Action.DISCARD:

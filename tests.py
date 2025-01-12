@@ -57,6 +57,16 @@ class TestVirusGame(unittest.TestCase):
         player.body[0].add_virus(Virus(CardColor.RED))
         self.assertFalse(self.game.check_win_condition(player))
 
+    def test_check_win_condition_four_organs_mixed_states(self):
+        # Test the win condition
+        player = self.game.players[0]
+        # Add 4 healthy organs to the player's body (simulating a win)
+        player.body = [Organ(CardColor.RED), Organ(CardColor.GREEN), Organ(CardColor.YELLOW), Organ(CardColor.WILD)]
+        player.body[0].add_medicine(Medicine(CardColor.RED))
+        player.body[1].add_medicine(Medicine(CardColor.GREEN))
+        player.body[1].add_medicine(Medicine(CardColor.GREEN))
+        self.assertTrue(self.game.check_win_condition(player))
+
     def test_check_win_condition_five_organs_one_infected(self):
         # Test the win condition
         player = self.game.players[0]

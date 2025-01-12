@@ -6,10 +6,10 @@ from players import BasePlayer
 
 
 class RandomPlayer(BasePlayer):
-    def decide_action(self):
+    def decide_action(self, opponents):
         return random.choice(list(Action))
 
-    def decide_opponent(self, opponents):
+    def decide_opponent(self, opponents, card):
         return random.choice(opponents)
 
     def decide_organ_color(self, target_body=None):

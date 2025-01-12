@@ -30,7 +30,7 @@ class VirusGame:
 
     @staticmethod
     def check_win_condition(player: BasePlayer) -> bool:
-        healthy_organs = [organ for organ in player.body if organ.state == OrganState.HEALTHY]
+        healthy_organs = [organ for organ in player.body if organ.state != OrganState.INFECTED]
         return len(healthy_organs) >= 4
 
     def play_turn(self) -> BasePlayer:
