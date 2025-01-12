@@ -2,7 +2,7 @@ import random
 from collections import defaultdict
 
 from deck import Deck
-from config import GameConfig
+from game_config import GameConfig
 from enums import OrganState
 from players import BasePlayer
 
@@ -15,6 +15,7 @@ class VirusGame:
         self.num_players = len(self.players)
         self.deck = Deck()
         self.current_player_index = random.randint(0, self.num_players - 1)
+        self.state = defaultdict()
 
     def start(self) -> None:
         print('GAME START')
@@ -25,6 +26,7 @@ class VirusGame:
             self.print_state()
         print('GAME OVER')
         print('Winner:', winner)
+        return winner
 
     @staticmethod
     def check_win_condition(player: BasePlayer) -> bool:
@@ -62,6 +64,8 @@ class VirusGame:
                 'name': player.name,
                 'hand': player.hand,
                 'body': player.body,
+                'cards_used': player.cards_used,
+                'cards_tried': player.cards_tried,
             })
         state['deck'] = self.deck.cards
         state['discard_pile'] = self.deck.discard_pile

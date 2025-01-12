@@ -1,4 +1,4 @@
-from config import GameConfig
+from game_config import GameConfig
 from game import VirusGame
 from enums import PlayerType
 
