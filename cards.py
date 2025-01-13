@@ -40,7 +40,7 @@ class Medicine(Card):
         else:
             target_color = self.color
         print('Target color:', target_color)
-        target_organ = next((organ for organ in owner.body if organ.color == target_color), None)
+        target_organ = next((organ for organ in owner.body if organ.color in [target_color, CardColor.WILD]), None)
         if not target_organ or target_organ.state == OrganState.IMMUNISED:
             return True
         elif target_organ.state == OrganState.HEALTHY:
@@ -72,7 +72,7 @@ class Virus(Card):
             target_color = owner.decide_organ_color(target.body)
         else:
             target_color = self.color
-        target_organ = next((organ for organ in target.body if organ.color == target_color), None)
+        target_organ = next((organ for organ in target.body if organ.color in [target_color, CardColor.WILD]), None)
         if not target_organ or target_organ.state == OrganState.IMMUNISED:
             return True
         elif target_organ.state == OrganState.HEALTHY:
@@ -104,7 +104,7 @@ class Organ(Card):
         super().__init__(self.name, CardType.ORGAN)
 
     def __repr__(self):
-        return f"{self.name} ({'+' * len(self.medicines)}{'-' * len(self.viruses)})"
+        return f"{self.name}{' ('+self.color.upper()+')' if self.color != self.original_color else ''} ({'+' * len(self.medicines)}{'-' * len(self.viruses)})"
 
     def play(self, game: 'VirusGame', owner: 'Player') -> bool:
         if any(organ.color == self.color for organ in owner.body):

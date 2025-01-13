@@ -112,6 +112,28 @@ class TestVirusGame(unittest.TestCase):
         organ = player.get_organ_by_color(CardColor.RED)
         self.assertEqual(organ.state, OrganState.IMMUNISED)
 
+    def test_play_colored_medicine_on_wild_organ(self):
+        # Test playing a colored medicine card on a wild organ
+        player = self.game.players[0]
+        # Add a healthy organ and a medicine card to the player's hand
+        player.add_card_to_hand(Organ(CardColor.WILD))
+        player.add_card_to_hand(Medicine(CardColor.RED))
+        player.play_card(self.game, 0)  # Play the organ card
+        player.play_card(self.game, 0)  # Play the medicine card
+        print(player.body[0])
+        self.assertEqual(player.body[0].state, OrganState.VACCINATED)
+        self.assertEqual(player.body[0].color, CardColor.RED)
+
+    def test_play_wild_medicine_on_wild_organ(self):
+        # Test playing a wild medicine card on a wild organ
+        player = self.game.players[0]
+        # Add a healthy organ and a medicine card to the player's hand
+        player.add_card_to_hand(Organ(CardColor.WILD))
+        player.add_card_to_hand(Medicine(CardColor.WILD))
+        player.play_card(self.game, 0)  # Play the organ card
+        player.play_card(self.game, 0)  # Play the medicine card
+        self.assertEqual(player.body[0].state, OrganState.VACCINATED)
+
     def test_play_medicine_on_immunised_organ(self):
         # Test playing a medicine card on a healthy organ
         player = self.game.players[0]
@@ -168,6 +190,29 @@ class TestVirusGame(unittest.TestCase):
         self.assertFalse(organ.medicines)
         self.assertFalse(organ.viruses)
         self.assertEqual(len(self.game.deck.discard_pile), 2)
+
+    def test_play_colored_virus_on_wild_organ(self):
+        # Test playing a colored virus card on a wild organ
+        player1 = self.game.players[0]
+        player2 = self.game.players[1]
+        # Add a healthy organ and a virus card to the player's hand
+        player1.add_card_to_hand(Virus(CardColor.RED))
+        player2.add_card_to_hand(Organ(CardColor.WILD))
+        player2.play_card(self.game, 0)  # Play the organ card
+        player1.play_card(self.game, 0)  # Play the virus card
+        self.assertEqual(player2.body[0].state, OrganState.INFECTED)
+        self.assertEqual(player2.body[0].color, CardColor.RED)
+
+    def test_play_wild_virus_on_wild_organ(self):
+        # Test playing a wild virus card on a wild organ
+        player1 = self.game.players[0]
+        player2 = self.game.players[1]
+        # Add a healthy organ and a virus card to the player's hand
+        player1.add_card_to_hand(Virus(CardColor.WILD))
+        player2.add_card_to_hand(Organ(CardColor.WILD))
+        player2.play_card(self.game, 0)  # Play the organ card
+        player1.play_card(self.game, 0)  # Play the virus card
+        self.assertEqual(player2.body[0].state, OrganState.INFECTED)
 
     def test_play_virus_on_immunised_organ(self):
         # Test playing a virus card on a healthy organ
