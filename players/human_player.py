@@ -38,7 +38,7 @@ class HumanPlayer(BasePlayer):
         print()
         while True:
             try:
-                choice = int(input("Choose organ color (1: Red, 2: Yellow, 3: Blue, 4: Green, 5: Wild): "))
+                choice = int(input(f"Choose {"opponent's" if target_body else 'your'} organ color (1: Red, 2: Yellow, 3: Blue, 4: Green, 5: Wild): "))
                 if 1 <= choice <= 5:
                     return list(CardColor)[choice - 1]
                 else:

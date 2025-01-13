@@ -175,7 +175,7 @@ class Treatment(Card):
             target = owner.decide_opponent(opponents, self)
             target_color = owner.decide_organ_color(target.body)
             try:
-                stolen_organ = next(organ for organ in target.body if organ.color == target_color)
+                stolen_organ = next(organ for organ in target.body if organ.color == target_color and organ.color not in [organ.color for organ in owner.body])
             except StopIteration:
                 return True
             target.body.remove(stolen_organ)

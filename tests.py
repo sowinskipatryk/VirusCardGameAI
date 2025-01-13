@@ -264,6 +264,22 @@ class TestVirusGame(unittest.TestCase):
         self.assertEqual(len(player1.body), 0)
         self.assertEqual(len(player2.body), 1)
 
+    def test_play_organ_thief_not_allow_same_organs(self):
+        # Test playing the Organ Thief treatment card to steal the card of the same color as in body
+        player1 = self.game.players[0]
+        player2 = self.game.players[1]
+        # Add a healthy organ to players bodies and an Organ Thief card to player1's hand
+        player1.add_card_to_body(Organ(CardColor.RED))
+        player2.add_card_to_body(Organ(CardColor.RED))
+        player1.add_card_to_hand(Treatment(TreatmentName.ORGAN_THIEF))
+        player1.play_card(self.game, 0)
+        player2.play_card(self.game, 0)
+        is_error = player1.play_card(self.game, 0)  # Player1 plays the Organ Thief card
+        # Check if the is_error flag is set indicating wrong move
+        self.assertTrue(is_error)
+        self.assertEqual(len(player1.body), 1)
+        self.assertEqual(len(player2.body), 1)
+
     def test_play_transplant_treatment(self):
         # Test playing the Transplant treatment card
         player1 = self.game.players[0]
