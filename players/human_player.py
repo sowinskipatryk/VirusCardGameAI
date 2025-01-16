@@ -5,7 +5,7 @@ from enums import Action, CardColor
 
 
 class HumanPlayer(BasePlayer):
-    def decide_action(self, opponents):
+    def decide_action(self, game_state):
         print(f"\nYour hand: {self.hand}")
         print(f"Your body: {self.body}")
 
@@ -18,7 +18,8 @@ class HumanPlayer(BasePlayer):
             else:
                 print("Invalid choice.")
 
-    def decide_opponent(self, opponents, card):
+    def decide_opponent(self, game_state, card):
+        opponents = game_state.get_opponents(self)
         print("\nOpponents:")
         for i, opponent in enumerate(opponents):
             print(f"{i + 1}. {opponent.name} body: {opponent.body}")
@@ -34,7 +35,7 @@ class HumanPlayer(BasePlayer):
                 print("Invalid input. Please enter a number.")
 
 
-    def decide_organ_color(self, target_body=None):
+    def decide_organ_color(self, game_state, target_body=None):
         print()
         while True:
             try:
@@ -46,7 +47,7 @@ class HumanPlayer(BasePlayer):
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-    def decide_card_to_play(self) -> int:
+    def decide_card_to_play(self, game_state) -> int:
         print()
         for i, card in enumerate(self.hand):
             print(f"{i + 1}. {card}")
@@ -61,7 +62,7 @@ class HumanPlayer(BasePlayer):
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-    def decide_cards_to_discard(self) -> List[int]:
+    def decide_cards_to_discard(self, game_state) -> List[int]:
         print()
         for i, card in enumerate(self.hand):
             print(f"{i + 1}. {card}")

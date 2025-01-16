@@ -1,18 +1,17 @@
 from abc import ABC, abstractmethod
-from typing import List
-from collections import defaultdict
+from typing import List, Tuple
 
 from cards import Card, Organ
-from enums import Action
+from enums import Action, CardColor
+from game_state import GameState
 
 
 class BasePlayer(ABC):
     def __init__(self, name: str):
-        self.name = name
+        self.name: str = name
         self.hand: List[Card] = []
         self.body: List[Organ] = []
-        self.cards_tried = defaultdict(int)
-        self.cards_used = defaultdict(int)
+        self.move_history: List[Tuple[Card, bool]] = []
 
     def __str__(self) -> str:
         return self.name
@@ -43,33 +42,32 @@ class BasePlayer(ABC):
         deck.discard(card)
         self.hand.remove(card)
 
-    def make_move(self, game) -> bool:
-        opponents = game.get_opponents(self)
-        action = self.decide_action(opponents)
+    def make_move(self, game_state) -> bool:
+        opponents = game_state.get_opponents(self)
+        action = self.decide_action(game_state)
         print('Decision:', action.name)
         if action == Action.PLAY:
-            card_id = self.decide_card_to_play()
+            card_id = self.decide_card_to_play(game_state)
             print('Card id:', card_id)
             if card_id is None:
                 return True
-            return self.play_card(game, card_id)
+            return self.play_card(game_state, card_id)
         elif action == Action.DISCARD:
-            card_ids = self.decide_cards_to_discard()
-            return self.discard_cards(game, card_ids)
+            card_ids = self.decide_cards_to_discard(game_state)
+            return self.discard_cards(game_state, card_ids)
         else:
             raise ValueError("Unknown action decision")
 
-    def play_card(self, game, card_id) -> bool:
+    def play_card(self, game_state, card_id) -> bool:
         try:
             card = self.get_hand_card_by_id(card_id)
         except IndexError:
             return True
         print('Chosen card:', card)
-        self.cards_tried[card.name] += 1
-        is_error = card.play(game, self)
+        is_error = card.play(game_state, self)
         if not is_error:
             self.remove_hand_card_by_id(card_id)
-            self.cards_used[card.name] += 1
+        self.move_history.append((card.name, is_error))
         print(f'Success: {not is_error}')
         return is_error
 
@@ -82,21 +80,21 @@ class BasePlayer(ABC):
             game.deck.discard(card)
 
     @abstractmethod
-    def decide_action(self, opponents):
+    def decide_action(self, game_state: GameState) -> Action:
         pass
 
     @abstractmethod
-    def decide_opponent(self, opponents, card):
+    def decide_opponent(self, game_state: GameState, card: Card) -> 'BasePlayer':
         pass
 
     @abstractmethod
-    def decide_organ_color(self, target_body=None):
+    def decide_organ_color(self, game_state: GameState, target_body=None) -> CardColor:
         pass
 
     @abstractmethod
-    def decide_card_to_play(self) -> int:
+    def decide_card_to_play(self, game_state: GameState) -> int:
         pass
 
     @abstractmethod
-    def decide_cards_to_discard(self) -> List[int]:
+    def decide_cards_to_discard(self, game_state: GameState) -> List[int]:
         pass
