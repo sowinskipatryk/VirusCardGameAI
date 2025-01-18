@@ -1,8 +1,8 @@
-from enum import StrEnum
+from enum import IntEnum
 
 
-class OrganState(StrEnum):
-    HEALTHY = "Healthy"
-    VACCINATED = "Vaccinated"
-    INFECTED = "Infected"
-    IMMUNISED = "Immunised"
+class OrganState(IntEnum):
+    INFECTED = 1
+    HEALTHY = 2
+    VACCINATED = 3
+    IMMUNISED = 4
