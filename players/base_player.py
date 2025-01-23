@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from cards import Card, Organ
-from enums import Action, CardColor
+from enums import Action, CardColor, OrganState
 from game_state import GameState
 
 
@@ -22,6 +22,12 @@ class BasePlayer(ABC):
     def get_hand_card_by_id(self, card_id):
         return self.hand[card_id]
 
+    def get_hand_card_by_name(self, card_name):
+        return next((card for card in self.hand if card.name == card_name), None)
+
+    def get_hand_card_by_type(self, card_type):
+        return next((card for card in self.hand if card.type == card_type), None)
+
     def add_card_to_hand(self, card: Card) -> None:
         assert len(self.hand) < 3
         self.hand.append(card)
@@ -33,17 +39,32 @@ class BasePlayer(ABC):
     def get_organ_by_color(self, color):
         return next((organ for organ in self.body if organ.color == color), None)
 
+    def get_organ_colors(self):
+        return [organ.color for organ in self.body]
+
+    def add_organ_to_body(self, organ):
+        self.body.append(organ)
+
+    def remove_organ_from_body(self, organ):
+        self.body.remove(organ)
+
+    def get_infected_organs(self):
+        return [organ for organ in self.body if organ.state == OrganState.INFECTED]
+
     def draw_card(self, deck):
         card = deck.draw_card()
         self.add_card_to_hand(card)
 
-    def discard_card(self, deck, card_id):
+    @property
+    def body_organ_colors(self):
+        return [organ.color for organ in self.body]
+
+    def discard_card(self, game_state, card_id):
         card = self.get_hand_card_by_id(card_id)
-        deck.discard(card)
+        game_state.add_card_to_discard_pile(card)
         self.hand.remove(card)
 
     def make_move(self, game_state) -> bool:
-        opponents = game_state.get_opponents(self)
         action = self.decide_action(game_state)
         print('Decision:', action.name)
         if action == Action.PLAY:
@@ -71,13 +92,13 @@ class BasePlayer(ABC):
         print(f'Success: {not is_error}')
         return is_error
 
-    def discard_cards(self, game, card_ids):
+    def discard_cards(self, game_state, card_ids):
         sorted_ids = sorted(card_ids, reverse=True)
         for card_id in sorted_ids:
-            card = self.remove_hand_card_by_id(card_id)
-            if not card:
+            hand_card = self.remove_hand_card_by_id(card_id)
+            if not hand_card:
                 return True
-            game.deck.discard(card)
+            game_state.add_card_to_discard_pile(hand_card)
 
     @abstractmethod
     def decide_action(self, game_state: GameState) -> Action:

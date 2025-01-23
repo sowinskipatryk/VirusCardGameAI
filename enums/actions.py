@@ -1,6 +1,6 @@
-from enum import IntEnum
+from enum import StrEnum
 
 
-class Action(IntEnum):
-    PLAY = 0
-    DISCARD = 1
+class Action(StrEnum):
+    PLAY = 'Play'
+    DISCARD = 'Discard'

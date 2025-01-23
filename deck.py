@@ -14,10 +14,13 @@ class Deck:
     def shuffle(self) -> None:
         random.shuffle(self.cards)
 
+    def refill_deck(self):
+        self.cards = self.discard_pile[::-1]
+        self.discard_pile = []
+
     def draw_card(self) -> Card:
         if not self.cards:
-            self.cards = self.discard_pile[::-1]
-            self.discard_pile = []
+            self.refill_deck()
         card = self.cards.pop()
         print('drawing', card)
         return card

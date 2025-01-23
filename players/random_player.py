@@ -9,7 +9,7 @@ class RandomPlayer(BasePlayer):
     def decide_action(self, game_state) -> Action:
         return random.choice(list(Action))
 
-    def decide_opponent(self, game_state, card):
+    def decide_opponent(self, game_state, card) -> BasePlayer:
         opponents = game_state.get_opponents(self)
         return random.choice(opponents)
 

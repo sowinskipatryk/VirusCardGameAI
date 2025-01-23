@@ -16,6 +16,9 @@ class GameState:
     def get_current_player(self):
         return self.players[self.current_player_index]
 
+    def get_player_by_index(self, index):
+        return self.players[index]
+
     def next_player(self) -> None:
         self.current_player_index = (self.current_player_index + 1) % self.num_players
 
@@ -83,5 +86,5 @@ class GameState:
         print(len(state['deck']), state['deck'])
         print(len(state['discard_pile']), state['discard_pile'])
 
-    def add_to_discard_pile(self, card):
+    def add_card_to_discard_pile(self, card):
         self.deck.discard(card)

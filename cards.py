@@ -28,19 +28,16 @@ class Card(ABC):
     def __repr__(self) -> str:
         return self.name
 
-    def discard(self, game):
-        game.add_to_discard_pile(self)
-
 
 class Medicine(Card):
-    def __init__(self, color):
+    def __init__(self, color: CardColor):
         self.name = f"{color} {CardType.MEDICINE}"
         self.color = color
         super().__init__(self.name, CardType.MEDICINE)
 
     def play(self, game_state: 'GameState', owner: 'Player') -> bool:
         if self.color == CardColor.WILD:
-            target_color = owner.decide_organ_color(game_state, context='wild_medicine')
+            target_color = owner.decide_organ_color(game_state)
         else:
             target_color = self.color
         print('Target color:', target_color)
@@ -50,11 +47,11 @@ class Medicine(Card):
         elif target_organ.state == OrganState.HEALTHY:
             target_organ.add_medicine(self) # Add the medicine to the organ
             if target_organ.color == CardColor.WILD:
-                target_organ.color = self.color # Set the medicine color to wild card
+                target_organ.color = self.color # Set the medicine color to wild organ
         elif target_organ.state == OrganState.INFECTED:
             virus = target_organ.remove_virus() # Remove the virus from the organ
-            game_state.add_to_discard_pile(virus) # Discard the virus
-            game_state.add_to_discard_pile(self) # Discard the medicine
+            game_state.add_card_to_discard_pile(virus) # Discard the virus
+            game_state.add_card_to_discard_pile(self) # Discard the medicine
             if target_organ.original_color == CardColor.WILD:
                 target_organ.color = CardColor.WILD # Reset the wild card color
         elif target_organ.state == OrganState.VACCINATED:
@@ -86,15 +83,15 @@ class Virus(Card):
         elif target_organ.state == OrganState.HEALTHY:
             target_organ.add_virus(self) # Add the virus to the organ
             if target_organ.color == CardColor.WILD:
-                target_organ.color = self.color # Assign the virus color to wild card
+                target_organ.color = self.color # Assign the virus color to wild organ
         elif target_organ.state == OrganState.INFECTED:
-            target.body.remove(target_organ) # Remove the twice infected organ from the target body
-            target_organ.discard(game_state) # Discard the target organ with one assigned previously virus
-            self.discard(game_state) # Discard the currently used virus
+            target.remove_organ_from_body(target_organ) # Remove the twice infected organ from the target body
+            target_organ.discard(game_state) # Discard the target organ with previously assigned virus
+            game_state.add_card_to_discard_pile(self) # Discard the currently used virus
         elif target_organ.state == OrganState.VACCINATED:
             medicine = target_organ.remove_medicine() # Remove the medicine from the target organ
-            game_state.deck.discard(medicine) # Discard the medicine
-            game_state.deck.discard(self) # Discard the virus
+            game_state.add_card_to_discard_pile(medicine) # Discard the medicine
+            game_state.add_card_to_discard_pile(self) # Discard the virus
             if target_organ.original_color == CardColor.WILD:
                 target_organ.color = CardColor.WILD # Reset the wild card color
         else:
@@ -123,22 +120,23 @@ class Organ(Card):
     def play(self, game_state: 'GameState', owner: 'Player') -> bool:
         if any(organ.color == self.color for organ in owner.body):
             return True
-        owner.body.append(self)
+        owner.add_organ_to_body(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player'):
         organ_colors = [organ.color for organ in owner.body]
         if self.color not in organ_colors:
             return True
 
-    def discard(self, game):
-        self.state = OrganState.HEALTHY
-        super().discard(game)
+    def discard(self, game_state):
         while self.viruses:
             virus = self.remove_virus()
-            game.add_to_discard_pile(virus)
+            game_state.add_card_to_discard_pile(virus)
         while self.medicines:
             medicine = self.remove_medicine()
-            game.add_to_discard_pile(medicine)
+            game_state.add_card_to_discard_pile(medicine)
+
+        self.state = OrganState.HEALTHY
+        game_state.add_card_to_discard_pile(self)
 
     def add_virus(self, virus_card):
         self.viruses.append(virus_card)
@@ -179,15 +177,14 @@ class Treatment(Card):
             target = owner.decide_opponent(game_state, self)
             given_color = owner.decide_organ_color(game_state)
             stolen_color = owner.decide_organ_color(game_state, target.body)
-            try:
-                stolen_organ = next(organ for organ in target.body if organ.color == stolen_color)
-                given_organ = next(organ for organ in owner.body if organ.color == given_color)
-            except StopIteration:
+            stolen_organ = target.get_organ_by_color(stolen_color)
+            given_organ = owner.get_organ_by_color(given_color)
+            if not stolen_organ or not given_organ:
                 return True
-            target.body.remove(stolen_organ)
-            owner.body.append(stolen_organ)
-            owner.body.remove(given_organ)
-            target.body.append(given_organ)
+            target.remove_organ_from_body(stolen_organ)
+            owner.add_organ_to_body(stolen_organ)
+            owner.remove_organ_from_body(given_organ)
+            target.add_organ_to_body(given_organ)
         elif self.name == TreatmentName.ORGAN_THIEF:
             target = owner.decide_opponent(game_state, self)
             target_color = owner.decide_organ_color(game_state, target.body)
@@ -195,10 +192,10 @@ class Treatment(Card):
                 stolen_organ = next(organ for organ in target.body if organ.color == target_color and organ.color not in [organ.color for organ in owner.body])
             except StopIteration:
                 return True
-            target.body.remove(stolen_organ)
-            owner.body.append(stolen_organ)
+            target.remove_organ_from_body(stolen_organ)
+            owner.add_organ_to_body(stolen_organ)
         elif self.name == TreatmentName.CONTAGION:
-            infected_organs = [organ for organ in owner.body if organ.state == OrganState.INFECTED]
+            infected_organs = owner.get_infected_organs()
             num_viruses = 0
             errors = 0
             for owner_organ in infected_organs:
@@ -216,14 +213,14 @@ class Treatment(Card):
             for opponent in opponents:
                 while opponent.hand:
                     card = opponent.hand.pop()
-                    card.discard(game_state)
+                    game_state.add_card_to_discard_pile(card)
         elif self.name == TreatmentName.MEDICAL_ERROR:
             target = owner.decide_opponent(game_state, self)
             owner.body, target.body = target.body, owner.body
         else:
             raise ValueError("Unknown treatment name: %s" % self.name)
 
-        self.discard(game_state)
+        game_state.add_card_to_discard_pile(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player'):
         if self.name == TreatmentName.ORGAN_THIEF:
