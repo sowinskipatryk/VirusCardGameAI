@@ -4,4 +4,5 @@ from enum import StrEnum
 class PlayerType(StrEnum):
     HUMAN = "Human"
     RANDOM = "Random"
-    AI = "AI"
+    # EXPLORER = "Explorer"
+    RULE_BASED = "RuleBased"
