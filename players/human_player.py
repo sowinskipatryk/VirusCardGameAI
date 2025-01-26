@@ -35,19 +35,19 @@ class HumanPlayer(BasePlayer):
                 print("Invalid input. Please enter a number.")
 
 
-    def decide_organ_color(self, game_state, target_body=None):
+    def decide_organ_color(self, game_state, opponent_body=None):
         print()
         while True:
             try:
-                choice = int(input(f"Choose {"opponent's" if target_body else 'your'} organ color (1: Red, 2: Yellow, 3: Blue, 4: Green, 5: Wild): "))
+                choice = int(input(f"Choose {"opponent's" if opponent_body else 'your'} organ color (1: Red, 2: Yellow, 3: Blue, 4: Green, 5: Wild): "))
                 if 1 <= choice <= 5:
                     return list(CardColor)[choice - 1]
                 else:
-                    print("Invalid choice. Please enter a number between 1 and 4.")
+                    print("Invalid choice. Please enter a number between 1 and 5.")
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-    def decide_card_to_play(self, game_state) -> int:
+    def decide_card_to_play_index(self, game_state) -> int:
         print()
         for i, card in enumerate(self.hand):
             print(f"{i + 1}. {card}")
@@ -62,7 +62,7 @@ class HumanPlayer(BasePlayer):
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-    def decide_cards_to_discard(self, game_state) -> List[int]:
+    def decide_cards_to_discard_indices(self, game_state) -> List[int]:
         print()
         for i, card in enumerate(self.hand):
             print(f"{i + 1}. {card}")

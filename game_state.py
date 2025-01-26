@@ -5,6 +5,7 @@ from deck import Deck
 from enums import CardColor, TreatmentName, CardType
 
 
+# manages the state of the game (player's hands, the deck etc.)
 class GameState:
     def __init__(self, players):
         self.players = players
@@ -32,7 +33,7 @@ class GameState:
             drawn_card = self.deck.draw_card()
             player.hand.append(drawn_card)
 
-    def get_state(self):
+    def get_state_info(self):
         state = defaultdict()
         state['players'] = []
         for player in self.players:
@@ -76,15 +77,6 @@ class GameState:
         state_array.append(len(self.deck.cards))
         state_array.append(len(self.deck.discard_pile))
         return state_array
-
-    def print_state(self):
-        state = self.get_state()
-        print('Current player:', self.get_current_player())
-        print('State array:', self.get_state_array_for_ai())
-        for player_state in state['players']:
-            print(player_state)
-        print(len(state['deck']), state['deck'])
-        print(len(state['discard_pile']), state['discard_pile'])
 
     def add_card_to_discard_pile(self, card):
         self.deck.discard(card)
