@@ -176,7 +176,7 @@ class BasePlayer(ABC):
             chosen_opponent_color = self.decide_organ_color(game_state, opponent_body=chosen_opponent.body)
             chosen_player_organ = self.get_organ_by_color(chosen_player_color)
             chosen_opponent_organ = chosen_opponent.get_organ_by_color(chosen_opponent_color)
-            if chosen_opponent and chosen_player_organ and chosen_opponent_organ and chosen_player_organ.state < OrganState.IMMUNISED and chosen_opponent_organ.state < OrganState.IMMUNISED and chosen_opponent_organ not in self.body_organ_colors and chosen_player_organ not in chosen_opponent.body_organ_colors:
+            if chosen_opponent and chosen_player_organ and chosen_opponent_organ and chosen_player_organ.state < OrganState.IMMUNISED and chosen_opponent_organ.state < OrganState.IMMUNISED and chosen_opponent_organ.color not in self.body_organ_colors and chosen_player_organ.color not in chosen_opponent.body_organ_colors:
                 moves_to_play.append(Move(opponent=chosen_opponent, player_organ=chosen_player_organ,
                                   opponent_organ=chosen_opponent_organ))
 
