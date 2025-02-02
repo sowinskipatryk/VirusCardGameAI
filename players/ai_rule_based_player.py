@@ -52,6 +52,24 @@ class RuleBasedAIPlayer(BasePlayer):
 
         return Action.DISCARD
 
+    def take_turn(self, game_state) -> bool:
+        move_decision = self.decide_moves(game_state)
+        if move_decision:
+            card, moves = move_decision
+
+            successful_moves = 0
+            for move in moves:
+                is_error = card.play(game_state, self, move)
+                if not is_error:
+                    successful_moves += 1
+                    self.move_history.append((card.name, is_error))
+                    assert len(self.body_organ_colors) == len(set(self.body_organ_colors))
+            if successful_moves:
+                self.remove_hand_card(card)
+        else:
+            card_ids = self.decide_cards_to_discard_indices(game_state)
+            self.discard_cards(game_state, card_ids)
+
     def decide_moves(self, game_state: GameState) -> Tuple[Card, List[Move]]:
         opponents = game_state.get_opponents(self)
 
@@ -89,14 +107,14 @@ class RuleBasedAIPlayer(BasePlayer):
                                                                            sum(len(organ.viruses) for organ in opponent.body)))
                 best_opponent = sorted_opponents[0]
                 for opponent_organ in best_opponent.body:
-                    if opponent_organ.color not in self.body:
+                    if opponent_organ.color not in self.body_organ_colors:
                         moves_to_play.append(Move(opponent=best_opponent, opponent_organ=opponent_organ))
                         return card, moves_to_play
 
         # rule 4 - check if we have a transplant card
         transplant_card = self.get_hand_card_by_name(TreatmentName.TRANSPLANT)
         if transplant_card:
-            filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent in opponents for opponent_organ in opponent.body for player_organ in self.body if opponent_organ.state != OrganState.IMMUNISED and player_organ.state != OrganState.IMMUNISED]
+            filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent in opponents for opponent_organ in opponent.body for player_organ in self.body if opponent_organ.state != OrganState.IMMUNISED and player_organ.state != OrganState.IMMUNISED and player_organ.color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors]
             #filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent, opponent_organ, player_organ in opponents_and_organs ]
             if filtered_opponents_and_organs:
                 sorted_opponents_and_organs = sorted(filtered_opponents_and_organs, key=lambda item: (-item[1].state, -(item[1].state-item[2].state), -len(item[0].body)))
@@ -141,12 +159,13 @@ class RuleBasedAIPlayer(BasePlayer):
                     else:
                         filtered_opponents_and_organs = [(opponent, opponent_organ) for opponent, opponent_organ in opponents_and_organs if virus.color in opponent.body_organ_colors]
                     sorted_opponents_and_organs = sorted(filtered_opponents_and_organs, key=lambda item: (-len(item[1].viruses), -len(item[1].medicines), -len(item[0].body)))
-                    best_move = sorted_opponents_and_organs[0]
-                    player_organ = next(organ for organ in self.body for curr_virus in organ.viruses if curr_virus is virus)
+                    if sorted_opponents_and_organs:
+                        best_move = sorted_opponents_and_organs[0]
+                        player_organ = next(organ for organ in self.body for curr_virus in organ.viruses if curr_virus is virus)
 
-                    moves_to_play.append(Move(opponent=best_move[0], player_organ=player_organ, opponent_organ=best_move[1]))
+                        moves_to_play.append(Move(opponent=best_move[0], player_organ=player_organ, opponent_organ=best_move[1]))
 
-                    transmitted_viruses += 1
+                        transmitted_viruses += 1
 
                 if transmitted_viruses:
                     return contagion_card, moves_to_play
@@ -158,6 +177,8 @@ class RuleBasedAIPlayer(BasePlayer):
             sorted_opponents_and_organs = sorted(opponents_and_organs, key=lambda item: (-len(item[0].body), item[1].state))
             for element in sorted_opponents_and_organs:
                 for virus_card in virus_cards:
+                    if element[1].color == CardColor.WILD and virus_card.color in element[0].body_organ_colors:
+                        continue
                     if element[1].color in [virus_card.color, CardColor.WILD]:
                         moves_to_play.append(Move(opponent=element[0], opponent_organ=element[1]))
                         return virus_card, moves_to_play
@@ -176,7 +197,7 @@ class RuleBasedAIPlayer(BasePlayer):
         if len(playable_cards) == 1 and playable_cards[0].type == TreatmentName.MEDICAL_ERROR:
             return
 
-        raise ValueError("Something went wrong")
+        # raise ValueError("Something went wrong")
 
     def decide_cards_to_discard_indices(self, game_state: GameState) -> List[int]:
         card_ids = []
@@ -264,20 +285,28 @@ class RuleBasedAIPlayer(BasePlayer):
                 for opponent in opponents:
                     for opponent_organ in opponent.body:
                         if OrganState.HEALTHY <= opponent_organ.state < OrganState.IMMUNISED:
-                            player_organ_same_color = self.get_organ_by_color(opponent_organ.color)
-                            if player_organ_same_color and player_organ_same_color.state == OrganState.INFECTED:
-                                moves_to_play.append(Move(opponent=opponent,
-                                                  player_organ=player_organ_same_color,
-                                                  opponent_organ=opponent_organ))
-                                return card, moves_to_play
+                            if opponent_organ.color == CardColor.WILD:
+                                sorted_organs = sorted(self.body, key=lambda x: -len(x.viruses))
+                                if sorted_organs[0].state < opponent_organ.state and sorted_organs[0].color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors:
+                                    moves_to_play.append(Move(opponent=opponent,
+                                                              player_organ=sorted_organs[0],
+                                                              opponent_organ=opponent_organ))
+                                    return card, moves_to_play
+                            else:
+                                player_organ_same_color = self.get_organ_by_color(opponent_organ.color)
+                                if player_organ_same_color and player_organ_same_color.state < opponent_organ.state:
+                                    moves_to_play.append(Move(opponent=opponent,
+                                                      player_organ=player_organ_same_color,
+                                                      opponent_organ=opponent_organ))
+                                    return card, moves_to_play
 
-                            elif not player_organ_same_color:
-                                for player_organ in self.body:
-                                    if player_organ.state == OrganState.INFECTED and player_organ.color not in opponent.body_organ_colors:
-                                        moves_to_play.append(Move(opponent=opponent,
-                                                          player_organ=player_organ,
-                                                          opponent_organ=opponent_organ))
-                                        return card, moves_to_play
+                                elif not player_organ_same_color:
+                                    for player_organ in self.body:
+                                        if player_organ.state < opponent_organ.state and player_organ.color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors:
+                                            moves_to_play.append(Move(opponent=opponent,
+                                                              player_organ=player_organ,
+                                                              opponent_organ=opponent_organ))
+                                            return card, moves_to_play
 
         # check if we can get rid of viruses to get 4 healthy organs
         from game_config import GameConfig

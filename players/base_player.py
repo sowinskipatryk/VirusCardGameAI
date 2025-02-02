@@ -70,6 +70,7 @@ class BasePlayer(ABC):
         print('Decision:', action.name)
         if action == Action.PLAY:
             card, moves = self.decide_moves(game_state)
+            print('Card:', card)
             if not card or not moves:
                 return True
             successful_moves = 0
@@ -77,11 +78,14 @@ class BasePlayer(ABC):
                 is_error = card.play(game_state, self, move)
                 if not is_error:
                     successful_moves += 1
-                    self.remove_hand_card(card)
                     self.move_history.append((card.name, is_error))
                     assert len(self.body_organ_colors) == len(set(self.body_organ_colors))
             if successful_moves == 0:
+                print('Status: FAIL')
                 return True
+            else:
+                print('Status: SUCCESS')
+                self.remove_hand_card(card)
         elif action == Action.DISCARD:
             card_ids = self.decide_cards_to_discard_indices(game_state)
             if not card_ids:
@@ -149,10 +153,14 @@ class BasePlayer(ABC):
             else:
                 chosen_color = self.get_organ_by_color(card.color)
             chosen_organ = chosen_opponent.get_organ_by_color(chosen_color)
-            if chosen_opponent and chosen_organ:
-                moves_to_play.append(Move(opponent=chosen_opponent, opponent_organ=chosen_organ))
 
-        elif card.type == CardType.ORGAN:
+            if chosen_opponent and chosen_organ:
+                if chosen_organ.color == CardColor.WILD and card.color in chosen_opponent.body_organ_colors:
+                    pass
+                else:
+                    moves_to_play.append(Move(opponent=chosen_opponent, opponent_organ=chosen_organ))
+
+        elif card.type == CardType.ORGAN and card.color not in self.body_organ_colors:
             moves_to_play.append(Move())
 
         elif card.name == TreatmentName.LATEX_GLOVE:
