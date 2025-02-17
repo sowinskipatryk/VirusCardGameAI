@@ -1,4 +1,4 @@
-from enums import CardType, Action, TreatmentName, CardColor, OrganState
+from enums import CardType, TreatmentName, CardColor, OrganState
 from players.base_player import BasePlayer
 from game_state import GameState
 from cards import Card
@@ -11,51 +11,12 @@ class RuleBasedAIPlayer(BasePlayer):
     def __init__(self, name: str):
         super().__init__(name)
 
-    def decide_action(self, game_state: GameState):
-        opponents = game_state.get_opponents(self)
-
-        for card in self.hand:
-            # play organ, medicine, virus cards whenever we can
-            if card.type in [CardType.ORGAN, CardType.MEDICINE, CardType.VIRUS] and card.can_be_played(game_state, self):
-                return Action.PLAY
-
-            # play contagion, organ thief cards whenever we can
-            # play latex glove whenever we can just to get rid of it and cause chaos in the opponents
-            if card.name in [TreatmentName.CONTAGION, TreatmentName.ORGAN_THIEF, TreatmentName.LATEX_GLOVE] and card.can_be_played(game_state, self):
-                return Action.PLAY
-
-            # play medical error if any opponent has more organs than we do OR if theirs have better states
-            if card.name == TreatmentName.MEDICAL_ERROR:
-                for opponent in opponents:
-
-                    # not worth it to play medical error if opponent has less than two organs
-                    if len(opponent.body) < 2:
-                        continue
-
-                    if self.opponent_has_better_organs(opponent):
-                        return Action.PLAY
-
-            # play transplant card if our organ state is worse than the organ state of the opponent
-            if card.name == TreatmentName.TRANSPLANT:
-                fine_organ_states = [OrganState.IMMUNISED, OrganState.VACCINATED]
-                candidate_organs = [organ for organ in self.body if organ.state not in fine_organ_states]
-                for player_organ in candidate_organs:
-                    for opponent in opponents:
-                        for opponent_organ in opponent.body:
-                            # the opponent's organ must be better AND swapped organs must be either of the same color or not in each other's bodies
-                            if player_organ.state < opponent_organ.state < OrganState.IMMUNISED:
-                                if player_organ.color == opponent_organ.color:
-                                    return Action.PLAY
-
-                                if player_organ.color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors:
-                                    return Action.PLAY
-
-        return Action.DISCARD
-
     def take_turn(self, game_state) -> bool:
-        move_decision = self.decide_moves(game_state)
+        move_decision = self.prepare_moves(game_state)
         if move_decision:
+            print('Decision: PLAY')
             card, moves = move_decision
+            print('Card:', card)
 
             successful_moves = 0
             for move in moves:
@@ -65,12 +26,16 @@ class RuleBasedAIPlayer(BasePlayer):
                     self.move_history.append((card.name, is_error))
                     assert len(self.body_organ_colors) == len(set(self.body_organ_colors))
             if successful_moves:
+                print('Card play status: SUCCESS')
                 self.remove_hand_card(card)
+            else:
+                print('Card play status: FAIL')
         else:
+            print('Decision: DISCARD')
             card_ids = self.decide_cards_to_discard_indices(game_state)
             self.discard_cards(game_state, card_ids)
 
-    def decide_moves(self, game_state: GameState) -> Tuple[Card, List[Move]]:
+    def prepare_moves(self, game_state: GameState) -> Tuple[Card, List[Move]]:
         opponents = game_state.get_opponents(self)
 
         # get playable cards to avoid unnecessary iterations
@@ -114,8 +79,7 @@ class RuleBasedAIPlayer(BasePlayer):
         # rule 4 - check if we have a transplant card
         transplant_card = self.get_hand_card_by_name(TreatmentName.TRANSPLANT)
         if transplant_card:
-            filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent in opponents for opponent_organ in opponent.body for player_organ in self.body if opponent_organ.state != OrganState.IMMUNISED and player_organ.state != OrganState.IMMUNISED and player_organ.color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors]
-            #filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent, opponent_organ, player_organ in opponents_and_organs ]
+            filtered_opponents_and_organs = [(opponent, opponent_organ, player_organ) for opponent in opponents for opponent_organ in opponent.body for player_organ in self.body if player_organ.state < opponent_organ.state < OrganState.IMMUNISED and player_organ.color not in opponent.body_organ_colors and opponent_organ.color not in self.body_organ_colors]
             if filtered_opponents_and_organs:
                 sorted_opponents_and_organs = sorted(filtered_opponents_and_organs, key=lambda item: (-item[1].state, -(item[1].state-item[2].state), -len(item[0].body)))
 
@@ -331,15 +295,12 @@ class RuleBasedAIPlayer(BasePlayer):
 
                     return card, moves_to_play
 
-    def check_move_with_maximum_profit(self):
-        # 1 - immunised organs
-        # 2 - rest organs
-        # 3 - state
-        pass
-
     # added to silence the abstract method warning
     def decide_opponent(self, game_state: GameState, card: Card) -> 'BasePlayer':
         pass
 
     def decide_organ_color(self, game_state: GameState, opponent_body=None) -> CardColor:
+        pass
+
+    def decide_action(self, game_state: GameState):
         pass
