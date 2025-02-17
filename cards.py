@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from enums import TreatmentName, CardType, OrganState, CardColor
 
 
-# tightly coupled card-playing logic
 class Card(ABC):
     def __init__(self, name: str, card_type: CardType):
         self.name = str(name)
@@ -16,12 +15,10 @@ class Card(ABC):
         return self.type
 
     @abstractmethod
-    def play(self, game_state: 'GameState', owner: 'Player', move: 'Move') -> bool:
-        pass
+    def play(self, game_state: 'GameState', owner: 'Player', move: 'Move') -> bool: ...
 
     @abstractmethod
-    def can_be_played(self, game_state: 'GameState', owner: 'Player') -> bool:
-        pass
+    def can_be_played(self, game_state: 'GameState', owner: 'Player') -> bool: ...
 
     def __str__(self) -> str:
         return self.name
@@ -41,17 +38,17 @@ class Medicine(Card):
         if not target_organ or target_organ.state == OrganState.IMMUNISED:
             return True
         elif target_organ.state == OrganState.HEALTHY:
-            target_organ.add_medicine(self) # Add the medicine to the organ
+            target_organ.add_medicine(self)
             if target_organ.color == CardColor.WILD:
-                target_organ.color = self.color # Set the medicine color to wild organ
+                target_organ.color = self.color  # Set the medicine color to wild organ
         elif target_organ.state == OrganState.INFECTED:
-            virus = target_organ.remove_virus() # Remove the virus from the organ
-            game_state.add_card_to_discard_pile(virus) # Discard the virus
-            game_state.add_card_to_discard_pile(self) # Discard the medicine
+            virus = target_organ.remove_virus()
+            game_state.add_card_to_discard_pile(virus)  # Discard the virus
+            game_state.add_card_to_discard_pile(self)  # Discard the medicine
             if target_organ.original_color == CardColor.WILD:
-                target_organ.color = CardColor.WILD # Reset the wild card color
+                target_organ.color = CardColor.WILD  # Reset the wild card color
         elif target_organ.state == OrganState.VACCINATED:
-            target_organ.add_medicine(self) # Add the medicine to the organ
+            target_organ.add_medicine(self)
         else:
             raise ValueError("Unknown organ state: %s" % target_organ.state)
 
@@ -101,11 +98,11 @@ class Virus(Card):
 
 
 class Organ(Card):
-    def __init__(self, color):
+    def __init__(self, color, state=OrganState.HEALTHY):
         self.name = f"{color} {CardType.ORGAN}"
         self.original_color = color
         self.color = color
-        self.state = OrganState.HEALTHY
+        self.state = state
         self.viruses = []
         self.medicines = []
         super().__init__(self.name, CardType.ORGAN)
@@ -163,6 +160,7 @@ class Organ(Card):
             self.state = OrganState.IMMUNISED
         else:
             raise ValueError(f"Invalid organ state: {'+' * len(self.medicines)}{'-' * len(self.viruses)}")
+
 
 class Treatment(Card):
     def __init__(self, name):

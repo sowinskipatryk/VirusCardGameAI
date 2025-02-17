@@ -5,7 +5,6 @@ from deck import Deck
 from enums import CardColor, TreatmentName, CardType
 
 
-# manages the state of the game (player's hands, the deck etc.)
 class GameState:
     def __init__(self, players):
         self.players = players
