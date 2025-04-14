@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 
+from enums import OrganState
 
-class OrganState(ABC):
+
+class OrganStateHandler(ABC):
     @abstractmethod
     def apply_virus(self, organ, virus):
         pass
@@ -11,33 +13,65 @@ class OrganState(ABC):
         pass
 
 
-class HealthyState(OrganState):
+class HealthyStateHandler(OrganStateHandler):
+    state = OrganState.HEALTHY
+
     def apply_virus(self, organ, virus):
-        organ.state = InfectedState()
+        organ.state_handler = InfectedStateHandler()
+
+    def remove_virus(self, organ, virus):
+        raise ValueError('Virus cannot be removed from healthy organ')
 
     def apply_medicine(self, organ, medicine):
-        organ.state = VaccinatedState()
+        organ.state_handler = VaccinatedStateHandler()
+
+    def remove_medicine(self, organ, medicine):
+        raise ValueError('Medicine cannot be removed from healthy organ')
 
 
-class InfectedState(OrganState):
+class InfectedStateHandler(OrganStateHandler):
+    state = OrganState.INFECTED
+
     def apply_virus(self, organ, virus):
-        organ.state = HealthyState()  # reset to default state before discarding the organ
+        organ.state_handler = HealthyStateHandler()  # reset to default state before discarding the organ
+
+    def remove_virus(self, organ, virus):
+        organ.state_handler = HealthyStateHandler()
 
     def apply_medicine(self, organ, medicine):
-        organ.state = HealthyState()
+        organ.state_handler = HealthyStateHandler()
+
+    def remove_medicine(self, organ, medicine):
+        raise ValueError('Medicine cannot be removed from infected organ')
 
 
-class VaccinatedState(OrganState):
+class VaccinatedStateHandler(OrganStateHandler):
+    state = OrganState.VACCINATED
+
     def apply_virus(self, organ, virus):
-        organ.state = HealthyState()
+        organ.state_handler = HealthyStateHandler()
+
+    def remove_virus(self, organ, virus):
+        raise ValueError('Virus cannot be removed from vaccinated organ')
 
     def apply_medicine(self, organ, medicine):
-        organ.state = ImmunisedState()
+        organ.state_handler = ImmunisedStateHandler()
+
+    def remove_medicine(self, organ, medicine):
+        organ.state_handler = HealthyStateHandler()
 
 
-class ImmunisedState(OrganState):
+class ImmunisedStateHandler(OrganStateHandler):
+    state = OrganState.IMMUNISED
+
     def apply_virus(self, organ, virus):
         raise ValueError('Virus cannot be applied on immunised organ')
 
+    def remove_virus(self, organ, virus):
+        raise ValueError('Virus cannot be removed from immunised organ')
+
     def apply_medicine(self, organ, medicine):
         raise ValueError('Medicine cannot be applied on immunised organ')
+
+    def remove_medicine(self, organ, medicine):
+        raise ValueError('Medicine cannot be removed from immunised organ')
