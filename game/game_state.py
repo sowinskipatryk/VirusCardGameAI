@@ -1,8 +1,9 @@
 import random
 from collections import defaultdict
 
-from deck import Deck
-from enums import CardColor, TreatmentName, CardType
+from game.game_constants import GameConstants
+from models.deck import Deck
+from enums import CardColor, TreatmentName, CardType, OrganState
 
 
 class GameState:
@@ -15,6 +16,9 @@ class GameState:
 
     def get_current_player(self):
         return self.players[self.current_player_index]
+
+    def get_player_index(self, player):
+        return self.players.index(player)
 
     def get_player_by_index(self, index):
         return self.players[index]
@@ -47,34 +51,38 @@ class GameState:
         return state
 
     def get_state_array_for_ai(self):
-        current_player = self.get_current_player()
-        opponents = self.get_opponents(current_player)
         card_colors = list(CardColor)
         treatments = list(TreatmentName)
+        organ_states = list(OrganState)
         color_card_types = [CardType.ORGAN, CardType.MEDICINE, CardType.VIRUS]
 
-        player_organ_state_index = 0
-        opponent_organ_state_index = player_organ_state_index + len(card_colors)
-        player_treatments_index = opponent_organ_state_index + len(opponents) * len(card_colors)
-        player_color_hand_cards_index = player_treatments_index + len(treatments)
+        BODY_INDEX = 0
+        PLAYER_INDEX = BODY_INDEX + (len(self.players) * len(OrganState) * len(CardColor))
+        COLOR_CARDS_INDEX = PLAYER_INDEX + len(self.players)
+        TREATMENTS_INDEX = COLOR_CARDS_INDEX + (len(CardColor) * len(color_card_types))
+        DECK_INDEX = TREATMENTS_INDEX + len(TreatmentName)
+        DISCARD_PILE_INDEX = DECK_INDEX + 1
+        num_inputs = DISCARD_PILE_INDEX + 1
 
-        state_array = [0] * (len(card_colors) * self.num_players + len(treatments) + len(color_card_types) * len(card_colors))
+        state_array = [0.] * num_inputs
+        for player_id, player in enumerate(self.players):
+            for organ in player.body:
+                state_array[BODY_INDEX + (player_id * len(OrganState) * len(CardColor)) + (organ_states.index(organ.state) * len(CardColor)) + card_colors.index(organ.color)] = 1.
 
-        for organ in current_player.body:
-            state_array[player_organ_state_index + card_colors.index(organ.color)] = organ.state.value
-
-        for i, opponent in enumerate(opponents):
-            for organ in opponent.body:
-                state_array[opponent_organ_state_index + (len(card_colors) * i) + card_colors.index(organ.color)] = organ.state.value
+        current_player = self.get_current_player()
+        current_player_id = self.get_player_index(current_player)
+        state_array[PLAYER_INDEX + current_player_id] = 1.
 
         for card in current_player.hand:
             if card.name in treatments:
-                state_array[player_treatments_index + treatments.index(card.name)] += 1
+                state_array[TREATMENTS_INDEX + treatments.index(card.name)] = 1.
+            elif card.type in color_card_types:
+                state_array[COLOR_CARDS_INDEX + (color_card_types.index(card.type) * len(CardColor)) + card_colors.index(card.color)] = 1.
             else:
-                state_array[player_color_hand_cards_index + color_card_types.index(card.type) * len(card_colors) + card_colors.index(card.color)] += 1
+                raise ValueError
 
-        state_array.append(len(self.deck.cards))
-        state_array.append(len(self.deck.discard_pile))
+        state_array[DECK_INDEX] = len(self.deck.cards) / GameConstants.NUM_TOTAL_CARDS
+        state_array[DISCARD_PILE_INDEX] = len(self.deck.discard_pile) / GameConstants.NUM_TOTAL_CARDS
         return state_array
 
     def add_card_to_discard_pile(self, card):
