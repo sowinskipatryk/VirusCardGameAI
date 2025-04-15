@@ -15,7 +15,7 @@ class GameManager:
         self.presenter = BlankPresenter()
 
     def run(self) -> BasePlayer:
-        # self.presenter.print_game_start()
+        self.presenter.print_game_start()
         winner = None
         turn_counter = 0
         max_turns = 10_000
