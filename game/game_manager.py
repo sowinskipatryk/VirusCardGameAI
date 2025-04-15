@@ -1,34 +1,35 @@
-from game_config import GameConfig
+from players import PlayerFactory
 from enums import OrganState
 from players import BasePlayer
-from game_state import GameState
-from game_presenter import GamePresenter
+from game.game_constants import GameConstants
+from game.game_state import GameState
+from interface import BlankPresenter
 
 
-class VirusGame:
-    def __init__(self, config: GameConfig) -> None:
-        if not config.is_valid():
+class GameManager:
+    def __init__(self, player_factory: PlayerFactory) -> None:
+        if not player_factory.is_valid():
             raise ValueError("The game configuration is invalid!")
-        self.config = config
-        self.state = GameState(config.players)
-        self.presenter = GamePresenter()
+        self.config = player_factory
+        self.state = GameState(player_factory.players)
+        self.presenter = BlankPresenter()
 
     def run(self) -> BasePlayer:
-        self.presenter.print_game_start()
+        # self.presenter.print_game_start()
         winner = None
         turn_counter = 0
-        MAX_TURNS = 10_000
+        max_turns = 10_000
         while not winner:
             winner = self.play_turn()
             turn_counter += 1
-            if turn_counter > MAX_TURNS:
-                raise RuntimeError(f"Game did not finish after {MAX_TURNS} turns")
+            if turn_counter > max_turns:
+                raise RuntimeError(f"Game did not finish after {max_turns} turns")
         self.presenter.print_game_over(winner)
         return winner
 
     def check_win_condition(self, player: BasePlayer) -> bool:
         healthy_organs = [organ for organ in player.body if organ.state != OrganState.INFECTED]
-        return len(healthy_organs) >= self.config.num_organs_to_win  # check if player has X healthy (or vaccinated or immunised) organs
+        return len(healthy_organs) >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN  # check if player has X healthy (or vaccinated or immunised) organs
 
     def play_turn(self) -> BasePlayer:
         self.presenter.print_separator()
