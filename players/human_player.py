@@ -34,7 +34,6 @@ class HumanPlayer(BasePlayer):
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-
     def decide_organ_color(self, game_state, opponent_body=None):
         print()
         while True:

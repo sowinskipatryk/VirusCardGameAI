@@ -21,7 +21,7 @@ class GameConstants:
     NUM_TRANSPLANTS: int = 3
     NUM_LATEX_GLOVES: int = 1
 
-    NUM_TOTAL_CARDS = ((NUM_COLORED_ORGANS + NUM_COLORED_VIRUSES + NUM_COLORED_MEDICINES) * len(list(CardColor))
+    NUM_TOTAL_CARDS = ((NUM_COLORED_ORGANS + NUM_COLORED_VIRUSES + NUM_COLORED_MEDICINES) * (len(list(CardColor)) - 1)
                        + NUM_WILD_ORGANS
                        + NUM_WILD_VIRUSES
                        + NUM_WILD_MEDICINES
