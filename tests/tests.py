@@ -7,6 +7,7 @@ from game import VirusGame
 
 # test cannot add two organs of the same color
 
+
 class TestVirusGame(unittest.TestCase):
     def setUp(self):
         # Set up a game for testing
