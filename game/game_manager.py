@@ -3,7 +3,7 @@ from enums import OrganState
 from players import BasePlayer
 from game.game_constants import GameConstants
 from game.game_state import GameState
-from interface import BlankPresenter
+from interface import presenter
 
 
 class GameManager:
@@ -12,10 +12,9 @@ class GameManager:
             raise ValueError("The game configuration is invalid!")
         self.config = player_factory
         self.state = GameState(player_factory.players)
-        self.presenter = BlankPresenter()
 
     def run(self) -> BasePlayer:
-        self.presenter.print_game_start()
+        presenter.print_game_start()
         winner = None
         turn_counter = 0
         max_turns = 10_000
@@ -32,9 +31,9 @@ class GameManager:
         return len(healthy_organs) >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN  # check if player has X healthy (or vaccinated or immunised) organs
 
     def play_turn(self) -> BasePlayer:
-        self.presenter.print_separator()
+        presenter.print_separator()
         current_player = self.state.get_current_player()
-        self.presenter.print_state(self._compose_state_info(current_player))
+        presenter.print_state(self._compose_state_info(current_player))
 
         if current_player.hand:  # if latex glove card was played - skip first phase and complete hand right away
             current_player.take_turn(self.state)
