@@ -125,11 +125,13 @@ class BasePlayer(ABC):
         moves_to_play = card.prepare_moves(self, game_state)
         return card, moves_to_play
 
-    def get_failed_moves_num(self):
-        return len([1 for _, is_error in self.move_history if is_error])
+    @property
+    def num_failed_moves(self):
+        return sum([1 for _, is_error in self.move_history if is_error])
 
-    def get_successful_moves_num(self):
-        return len([1 for _, is_error in self.move_history if not is_error])
+    @property
+    def num_successful_moves(self):
+        return sum([1 for _, is_error in self.move_history if not is_error])
 
     def get_immunised_organs_num(self):
         return len([1 for organ in self.body if len(organ.medicines) == 2])
