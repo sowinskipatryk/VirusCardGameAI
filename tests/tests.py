@@ -1,20 +1,20 @@
 import unittest
 
-from game_config import GameConfig
+from players import PlayerFactory
 from enums import PlayerType, OrganState, CardColor, TreatmentName
-from cards import Organ, Medicine, Virus, Treatment
-from game import VirusGame
+from models.cards import Organ, Medicine, Virus, TreatmentCard
+from game.game_manager import GameManager
 
 # test cannot add two organs of the same color
 
 
-class TestVirusGame(unittest.TestCase):
+class TestGameManager(unittest.TestCase):
     def setUp(self):
         # Set up a game for testing
-        config = GameConfig()
+        config = PlayerFactory()
         config.add_player(PlayerType.RANDOM, "Player1")
         config.add_player(PlayerType.RANDOM, "Player2")
-        self.game = VirusGame(config)
+        self.game = GameManager(config)
 
     def test_initial_setup(self):
         # Check if the game is initialized correctly
@@ -247,7 +247,7 @@ class TestVirusGame(unittest.TestCase):
         player2_blue_organ = player2.get_organ_by_color(CardColor.BLUE)
         player1_red_organ.add_virus(Virus(CardColor.RED))
         player1_blue_organ.add_virus(Virus(CardColor.BLUE))
-        player1.add_card_to_hand(Treatment(TreatmentName.CONTAGION))
+        player1.add_card_to_hand(TreatmentCard(TreatmentName.CONTAGION))
         player1.play_card(self.game.state, -1)  # Player1 plays the Contagion card
         # Check if the virus spread to player2's organ
         self.assertEqual(player2_red_organ.state, OrganState.INFECTED)
@@ -259,7 +259,7 @@ class TestVirusGame(unittest.TestCase):
         player2 = self.game.state.get_player_by_index(1)
         # Add a healthy organ to player1's body and an Organ Thief card to player2's hand
         player1.add_card_to_body(Organ(CardColor.RED))
-        player2.add_card_to_hand(Treatment(TreatmentName.ORGAN_THIEF))
+        player2.add_card_to_hand(TreatmentCard(TreatmentName.ORGAN_THIEF))
         player2.play_card(self.game.state, 0)  # Player2 plays the Organ Thief card
         # Check if the organ was stolen from player1
         self.assertEqual(len(player1.body), 0)
@@ -272,7 +272,7 @@ class TestVirusGame(unittest.TestCase):
         # Add a healthy organ to players bodies and an Organ Thief card to player1's hand
         player1.add_card_to_body(Organ(CardColor.RED))
         player2.add_card_to_body(Organ(CardColor.RED))
-        player1.add_card_to_hand(Treatment(TreatmentName.ORGAN_THIEF))
+        player1.add_card_to_hand(TreatmentCard(TreatmentName.ORGAN_THIEF))
         player1.play_card(self.game.state, 0)
         player2.play_card(self.game.state, 0)
         is_error = player1.play_card(self.game.state, 0)  # Player1 plays the Organ Thief card
@@ -288,7 +288,7 @@ class TestVirusGame(unittest.TestCase):
         # Add healthy organs of different colors to both players' bodies
         player1.add_card_to_body(Organ(CardColor.RED))
         player2.add_card_to_body(Organ(CardColor.BLUE))
-        player2.add_card_to_hand(Treatment(TreatmentName.TRANSPLANT))
+        player2.add_card_to_hand(TreatmentCard(TreatmentName.TRANSPLANT))
         player2.play_card(self.game.state, -1)  # Player2 plays the Transplant card
         # Check if the organs were swapped
         self.assertEqual(player1.body[0].color, CardColor.BLUE)
@@ -301,7 +301,7 @@ class TestVirusGame(unittest.TestCase):
         # Add cards to player1's hand and a Latex Glove card to player2's hand
         player1.add_card_to_hand(Organ(CardColor.RED))
         player1.add_card_to_hand(Virus(CardColor.BLUE))
-        player2.add_card_to_hand(Treatment(TreatmentName.LATEX_GLOVE))
+        player2.add_card_to_hand(TreatmentCard(TreatmentName.LATEX_GLOVE))
         player2.play_card(self.game.state, 0)  # Player2 plays the Latex Glove card
         # Check if player1's hand is empty
         self.assertEqual(len(player1.hand), 0)
@@ -315,7 +315,7 @@ class TestVirusGame(unittest.TestCase):
         player1.add_card_to_body(Organ(CardColor.BLUE))
         player1.add_card_to_body(Organ(CardColor.YELLOW))
         player2.add_card_to_body(Organ(CardColor.RED))
-        player2.add_card_to_hand(Treatment(TreatmentName.MEDICAL_ERROR))
+        player2.add_card_to_hand(TreatmentCard(TreatmentName.MEDICAL_ERROR))
         player2.play_card(self.game.state, -1)  # Player2 plays the Medical Error card
         # Check if the organs were swapped
         self.assertEqual(len(player1.body), 1)
@@ -352,6 +352,7 @@ class TestVirusGame(unittest.TestCase):
         player1 = self.game.state.get_player_by_index(0)
         is_error = player1.play_card(self.game.state, 0) # Expect the is_error to return True to block the move
         self.assertTrue(is_error)
+
 
 if __name__ == '__main__':
     unittest.main()
