@@ -1,4 +1,7 @@
-class GamePresenter:
+from interface.base_presenter import BasePresenter
+
+
+class CLIPresenter(BasePresenter):
     def print_game_start(self) -> None:
         print("GAME START")
 
@@ -18,3 +21,9 @@ class GamePresenter:
         discard_pile = state_info.get('discard_pile', [])
         print(f"Deck ({len(deck)}):", deck)
         print(f"Discard pile ({len(discard_pile)}):", discard_pile)
+
+    def print_output_array(self, output_arr):
+        print('Output array:', output_arr)
+
+    def print_subset_array(self, subset_arr):
+        print('Subset array:', subset_arr)
