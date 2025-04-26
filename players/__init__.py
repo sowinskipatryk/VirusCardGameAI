@@ -3,7 +3,7 @@ from game.game_constants import GameConstants
 from players.base_player import BasePlayer
 from players.human_player import HumanPlayer
 from players.random_player import RandomPlayer
-from players.neat_ai import ExplorerPlayer
+from players.neat_player import NEATPlayer
 from players.rule_based_ai import RuleBasedAIPlayer
 
 from typing import List
@@ -13,17 +13,18 @@ class PlayerFactory:
     def __init__(self):
         self.players: List['BasePlayer'] = []
 
-    @staticmethod
-    def create_player(player_type: PlayerType, name: str, **kwargs) -> BasePlayer:
-        if player_type == PlayerType.HUMAN:
-            return HumanPlayer(name)
-        elif player_type == PlayerType.EXPLORER:
-            return ExplorerPlayer(name, **kwargs)
-        elif player_type == PlayerType.RULE_BASED:
-            return RuleBasedAIPlayer(name)
-        elif player_type == PlayerType.RANDOM:
-            return RandomPlayer(name)
-        raise ValueError(f"Unknown player type: {player_type}")
+    PLAYER_TYPE_TO_PLAYER_CLASS = {
+        PlayerType.HUMAN: HumanPlayer,
+        PlayerType.RANDOM: RandomPlayer,
+        PlayerType.NEAT_AI: NEATPlayer,
+        PlayerType.RULE_BASED_AI: RuleBasedAIPlayer,
+    }
+
+    def create_player(self, player_type: PlayerType, name: str, **kwargs) -> BasePlayer:
+        try:
+            return self.PLAYER_TYPE_TO_PLAYER_CLASS[player_type](name, **kwargs)
+        except ValueError:
+            raise ValueError(f"Unknown player type: {player_type}")
 
     def add_player(self, player_type: PlayerType, name: str, **kwargs) -> 'Player':
         if len(self.players) >= GameConstants.MAX_PLAYERS:
