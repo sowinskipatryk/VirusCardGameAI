@@ -3,7 +3,7 @@ import os
 import pickle
 from players import PlayerFactory
 from game.game_manager import GameManager
-from interface.graph_reporter import LiveGraphReporter
+from live_graph_reporter import LiveGraphReporter
 from enums import PlayerType
 
 
