@@ -1,9 +1,10 @@
-from enums import CardType, TreatmentName, CardColor, OrganState
+from enums import CardType, TreatmentName, CardColor, OrganState, Action
 from players.base_player import BasePlayer
 from game.game_constants import GameConstants
 from game.game_state import GameState
 from models.cards import Card
 from models.move import Move
+from interface import presenter
 
 from typing import List, Tuple
 
@@ -15,24 +16,12 @@ class RuleBasedAIPlayer(BasePlayer):
     def take_turn(self, game_state) -> bool:
         move_decision = self.prepare_moves(game_state)
         if move_decision:
-            print('Decision: PLAY')
+            presenter.print_decision(Action.PLAY)
             card, moves = move_decision
-            print('Card:', card)
-
-            successful_moves = 0
-            for move in moves:
-                is_error = card.play(game_state, self, move)
-                if not is_error:
-                    successful_moves += 1
-                    self.move_history.append((card.name, is_error))
-                    assert len(self.organ_colors) == len(set(self.organ_colors))
-            if successful_moves:
-                print('Card play status: SUCCESS')
-                self.remove_hand_card(card)
-            else:
-                print('Card play status: FAIL')
+            presenter.print_card(card)
+            self.play_card(game_state, card, moves)
         else:
-            print('Decision: DISCARD')
+            presenter.print_decision(Action.DISCARD)
             card_ids = self.decide_cards_to_discard_indices(game_state)
             self.discard_cards(game_state, card_ids)
 
