@@ -57,11 +57,11 @@ class Medicine(ColoredCard):
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player'):
         for organ in owner.body:
-            if organ.state != OrganState.IMMUNISED and (self.color == organ.color or self.color == CardColor.WILD):
+            if organ.state != OrganState.IMMUNISED and self.color in [organ.color, CardColor.WILD]:
                 return True
 
     def prepare_moves(self, player, game_state) -> List[Move]:
-        if self.color == CardColor.WILD:
+        if self.color == CardColor.WILD or any(organ.color == CardColor.WILD for organ in player.body):
             chosen_color = player.decide_organ_color(game_state)
         else:
             chosen_color = self.color
@@ -91,7 +91,7 @@ class Virus(ColoredCard):
 
     def prepare_moves(self, player, game_state) -> List[Move]:
         chosen_opponent = player.decide_opponent(game_state, self)
-        if self.color == CardColor.WILD:
+        if self.color == CardColor.WILD or any(organ.color == CardColor.WILD for organ in chosen_opponent.body):
             chosen_color = player.decide_organ_color(game_state, opponent_body=chosen_opponent.body)
         else:
             chosen_color = player.get_organ_by_color(self.color)
@@ -270,6 +270,7 @@ class Transplant(TreatmentCard):
         chosen_opponent_color = player.decide_organ_color(game_state, opponent_body=chosen_opponent.body)
         chosen_player_organ = player.get_organ_by_color(chosen_player_color)
         chosen_opponent_organ = chosen_opponent.get_organ_by_color(chosen_opponent_color)
+        # TODO: move the validation logic to play() or separate CardValidator class
         if chosen_player_organ and chosen_opponent_organ and chosen_player_organ.state < OrganState.IMMUNISED and chosen_opponent_organ.state < OrganState.IMMUNISED and chosen_opponent_organ.color not in player.organ_colors and chosen_player_organ.color not in chosen_opponent.organ_colors:
             return [Move(opponent=chosen_opponent, player_organ=chosen_player_organ,
                          opponent_organ=chosen_opponent_organ)]
