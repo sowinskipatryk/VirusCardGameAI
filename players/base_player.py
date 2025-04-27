@@ -5,6 +5,7 @@ from models.cards import Card, Organ
 from enums import Action, CardColor, OrganState
 from game.game_state import GameState
 from models.move import Move
+from interface import presenter
 
 
 class BasePlayer(ABC):
@@ -62,27 +63,33 @@ class BasePlayer(ABC):
         game_state.add_card_to_discard_pile(card)
         self.hand.remove(card)
 
+    def play_card(self, game_state, card, moves):
+        if not card or not moves:
+            return
+
+        num_successful_moves = 0
+        for move in moves:
+            is_error = card.play(game_state, self, move)
+            if not is_error:
+                num_successful_moves += 1
+            self.move_history.append((card.name, is_error))
+        if num_successful_moves:
+            self.remove_hand_card(card)
+            presenter.print_card_play_status_success()
+        else:
+            presenter.print_card_play_status_fail()
+        return num_successful_moves
+
     def take_turn(self, game_state) -> bool:
         action = self.decide_action(game_state)
         assert action is not None
-        # print('Decision:', action.name)
+        presenter.print_decision(action.name)
         if action == Action.PLAY:
             card, moves = self.prepare_moves(game_state)
-            # print('Card:', card)
-            if not card or not moves:
+            presenter.print_card(card)
+            num_successful_moves = self.play_card(game_state, card, moves)
+            if not num_successful_moves:
                 return True
-            successful_moves = 0
-            for move in moves:
-                is_error = card.play(game_state, self, move)
-                if not is_error:
-                    successful_moves += 1
-                    self.move_history.append((card.name, is_error))
-            if successful_moves == 0:
-                # print('Card play status: FAIL')
-                return True
-            else:
-                # print('Card play status: SUCCESS')
-                self.remove_hand_card(card)
         elif action == Action.DISCARD:
             card_ids = self.decide_cards_to_discard_indices(game_state)
             if not card_ids:

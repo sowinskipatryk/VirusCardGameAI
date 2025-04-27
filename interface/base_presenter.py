@@ -25,3 +25,19 @@ class BasePresenter(ABC):
     @abstractmethod
     def print_subset_array(self, subset_arr):
         pass
+
+    @abstractmethod
+    def print_card_play_status_success(self):
+        pass
+
+    @abstractmethod
+    def print_card_play_status_fail(self):
+        pass
+
+    @abstractmethod
+    def print_decision(self, decision):
+        pass
+
+    @abstractmethod
+    def print_card(self, card):
+        pass

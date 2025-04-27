@@ -19,3 +19,15 @@ class BlankPresenter(BasePresenter):
 
     def print_subset_array(self, subset_arr):
         pass
+
+    def print_card_play_status_success(self):
+        pass
+
+    def print_card_play_status_fail(self):
+        pass
+
+    def print_decision(self, decision):
+        pass
+
+    def print_card(self, card):
+        pass

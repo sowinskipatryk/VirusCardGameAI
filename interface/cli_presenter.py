@@ -27,3 +27,15 @@ class CLIPresenter(BasePresenter):
 
     def print_subset_array(self, subset_arr):
         print('Subset array:', subset_arr)
+
+    def print_card_play_status_success(self):
+        print('Card play status: SUCCESS')
+
+    def print_card_play_status_fail(self):
+        print('Card play status: FAIL')
+
+    def print_decision(self, decision):
+        print('Decision:', decision)
+
+    def print_card(self, card):
+        print('Card:', card)
