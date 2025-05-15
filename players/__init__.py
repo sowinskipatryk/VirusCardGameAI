@@ -4,6 +4,7 @@ from players.base_player import BasePlayer
 from players.human_player import HumanPlayer
 from players.random_player import RandomPlayer
 from players.neat_player import NEATPlayer
+from players.strategy_based_ai import StrategyBasedAIPlayer
 from players.rule_based_ai import RuleBasedAIPlayer
 
 from typing import List
@@ -17,6 +18,7 @@ class PlayerFactory:
         PlayerType.HUMAN: HumanPlayer,
         PlayerType.RANDOM: RandomPlayer,
         PlayerType.NEAT_AI: NEATPlayer,
+        PlayerType.STRATEGY_BASED_AI: StrategyBasedAIPlayer,
         PlayerType.RULE_BASED_AI: RuleBasedAIPlayer,
     }
 

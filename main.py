@@ -8,9 +8,10 @@ from collections import defaultdict
 def main():
     player_factory = PlayerFactory()
 
-    player_factory.add_player(PlayerType.RULE_BASED_AI, "John")
+    player_factory.add_player(PlayerType.STRATEGY_BASED_AI, "John")
+    # player_factory.add_player(PlayerType.RULE_BASED_AI, "John")
     # player_factory.add_player(PlayerType.HUMAN, "John")
-    # player_factory.add_player(PlayerType.NEAT_AI, "John")
+    # player_factory.add_player(PlayerType.ISMCTS_AI, "John")
     # player_factory.add_player(PlayerType.RANDOM, "John")
 
     player_factory.add_player(PlayerType.RANDOM, "George")
