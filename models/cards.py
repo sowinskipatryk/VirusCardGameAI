@@ -131,7 +131,7 @@ class Organ(ColoredCard):
     def play(self, game_state: 'GameState', owner: 'Player', move: 'Move') -> bool:
         if any(organ.color == self.color for organ in owner.body):
             return True
-        owner.add_card_to_body(self)
+        owner.add_organ_to_body(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player'):
         organ_colors = [organ.color for organ in owner.body]
@@ -188,7 +188,7 @@ class OrganThief(TreatmentCard):
         target = move.opponent
         target_organ = move.opponent_organ
         target.remove_organ_from_body(target_organ)
-        owner.add_card_to_body(target_organ)
+        owner.add_organ_to_body(target_organ)
         game_state.add_card_to_discard_pile(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player') -> bool:
@@ -250,9 +250,9 @@ class Transplant(TreatmentCard):
         stolen_organ = move.opponent_organ
         given_organ = move.player_organ
         target.remove_organ_from_body(stolen_organ)
-        owner.add_card_to_body(stolen_organ)
+        owner.add_organ_to_body(stolen_organ)
         owner.remove_organ_from_body(given_organ)
-        target.add_card_to_body(given_organ)
+        target.add_organ_to_body(given_organ)
         game_state.add_card_to_discard_pile(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player') -> bool:

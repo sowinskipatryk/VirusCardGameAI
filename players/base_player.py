@@ -23,7 +23,8 @@ class BasePlayer(ABC):
         return self.hand.remove(card)
 
     def get_hand_card_by_id(self, card_id):
-        assert card_id < len(self.hand)
+        if card_id > len(self.hand):
+            raise ValueError
         return self.hand[card_id]
 
     def get_hand_card_by_name(self, card_name):
@@ -33,10 +34,13 @@ class BasePlayer(ABC):
         return next((card for card in self.hand if card.type == card_type), None)
 
     def add_card_to_hand(self, card: Card) -> None:
-        assert len(self.hand) < 3
+        if len(self.hand) >= 3:
+            raise ValueError
         self.hand.append(card)
 
-    def add_card_to_body(self, organ: Organ) -> None:
+    def add_organ_to_body(self, organ: Organ) -> None:
+        if organ.color in self.organ_colors:
+            raise ValueError
         self.body.append(organ)
 
     def remove_organ_from_body(self, organ):

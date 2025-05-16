@@ -110,8 +110,8 @@ class NEATPlayer(BasePlayer):
         score -= (10 * self.get_infected_organs_num())
         return score
 
-    def add_card_to_body(self, organ: 'Organ') -> None:
-        super().add_card_to_body(organ)
+    def add_organ_to_body(self, organ: 'Organ') -> None:
+        super().add_organ_to_body(organ)
         self.score += 10
 
     def remove_organ_from_body(self, organ):
