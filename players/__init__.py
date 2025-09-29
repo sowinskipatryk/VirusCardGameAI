@@ -1,6 +1,9 @@
 from enums import PlayerType
 from game.game_constants import GameConstants
 from players.base_player import BasePlayer
+from players.dqn_player import DQNPlayer
+from players.mcts_player import MCTSPlayer
+from players.ismcts_player import ISMCTSPlayer
 from players.human_player import HumanPlayer
 from players.random_player import RandomPlayer
 from players.neat_player import NEATPlayer
@@ -20,6 +23,9 @@ class PlayerFactory:
         PlayerType.NEAT_AI: NEATPlayer,
         PlayerType.STRATEGY_BASED_AI: StrategyBasedAIPlayer,
         PlayerType.RULE_BASED_AI: RuleBasedAIPlayer,
+        PlayerType.DQN_AI: DQNPlayer,
+        PlayerType.MCTS_AI: MCTSPlayer,
+        PlayerType.ISMCTS_AI: ISMCTSPlayer,
     }
 
     def create_player(self, player_type: PlayerType, name: str, **kwargs) -> BasePlayer:

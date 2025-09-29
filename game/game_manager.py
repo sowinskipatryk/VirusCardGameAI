@@ -23,25 +23,33 @@ class GameManager:
             turn_counter += 1
             if turn_counter > max_turns:
                 raise RuntimeError(f"Game did not finish after {max_turns} turns")
-        self.presenter.print_game_over(winner)
+        self.state.set_game_over()
+        presenter.print_game_over(winner)
         return winner
 
-    def check_win_condition(self, player: BasePlayer) -> bool:
-        healthy_organs = [organ for organ in player.body if organ.state != OrganState.INFECTED]
+    def check_win_condition(self) -> bool:
+        healthy_organs = [organ for organ in self.state.current_player.body if organ.state != OrganState.INFECTED]
         return len(healthy_organs) >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN  # check if player has X healthy (or vaccinated or immunised) organs
 
     def play_turn(self) -> BasePlayer:
         presenter.print_separator()
-        current_player = self.state.get_current_player()
-        presenter.print_state(self._compose_state_info(current_player))
+        presenter.print_state(self._compose_state_info(self.state.current_player))
 
-        if current_player.hand:  # if latex glove card was played - skip first phase and complete hand right away
-            current_player.take_turn(self.state)
-            if self.check_win_condition(current_player):
-                self.presenter.print_state(self._compose_state_info(current_player))
-                return current_player
+        if self.state.current_player.hand:  # if latex glove card was played - skip first phase and complete hand right away
+            self.state.current_player.take_turn(self.state)
 
-        self.state.complete_hand(current_player)
+        self.state.complete_hand(self.state.current_player)
+
+        if self.check_win_condition(self.state.current_player):
+            self.game_over = True
+            self.winner = self.state.current_player
+            return
+
+        winner = self.state.get_winner()
+        if winner:
+            presenter.print_state(self._compose_state_info(self.state.current_player))
+            return winner
+
         self.state.next_player()
 
     def _compose_state_info(self, current_player: BasePlayer) -> dict:
