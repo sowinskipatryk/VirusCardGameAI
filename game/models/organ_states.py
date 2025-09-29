@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from enums import OrganState, CardColor
+from game.enums import OrganState, CardColor
 
 
 class OrganStateHandler(ABC):

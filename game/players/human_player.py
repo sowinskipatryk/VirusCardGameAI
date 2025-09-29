@@ -1,7 +1,7 @@
 from typing import List
 
-from players import BasePlayer
-from enums import Action, CardColor
+from game.players import BasePlayer
+from game.enums import Action, CardColor
 
 
 class HumanPlayer(BasePlayer):

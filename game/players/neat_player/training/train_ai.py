@@ -1,10 +1,10 @@
 import neat
 import os
 import pickle
-from players import PlayerFactory
-from game.game_manager import GameManager
+from game.players import PlayerFactory
+from game.manager import GameManager
 from live_graph_reporter import LiveGraphReporter
-from enums import PlayerType
+from game.enums import PlayerType
 
 
 def eval_genomes(genomes, config):

@@ -1,8 +1,8 @@
 import random
 
-from game.game_constants import GameConstants
-from models.cards import Card, Organ, Virus, Medicine, MedicalError, Contagion, LatexGlove, OrganThief, Transplant
-from enums import CardColor
+from game.constants import GameConstants
+from game.models.cards import Card, Organ, Virus, Medicine, MedicalError, Contagion, LatexGlove, OrganThief, Transplant
+from game.enums import CardColor
 
 
 class Deck:
@@ -22,6 +22,10 @@ class Deck:
     def draw_card(self) -> Card:
         if not self.cards:
             self.refill_deck()
+
+        if not self.cards:
+            raise ValueError('Deck is empty after refill')
+
         card = self.cards.pop()
         # print('drawing', card)
         return card

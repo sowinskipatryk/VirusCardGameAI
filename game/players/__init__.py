@@ -1,14 +1,14 @@
-from enums import PlayerType
-from game.game_constants import GameConstants
-from players.base_player import BasePlayer
-from players.dqn_player import DQNPlayer
-from players.mcts_player import MCTSPlayer
-from players.ismcts_player import ISMCTSPlayer
-from players.human_player import HumanPlayer
-from players.random_player import RandomPlayer
-from players.neat_player import NEATPlayer
-from players.strategy_based_ai import StrategyBasedAIPlayer
-from players.rule_based_ai import RuleBasedAIPlayer
+from game.enums import PlayerType
+from game.constants import GameConstants
+from game.players.base_player import BasePlayer
+from game.players.dqn_player import DQNPlayer
+from game.players.mcts_player import MCTSPlayer
+from game.players.ismcts_player import ISMCTSPlayer
+from game.players.human_player import HumanPlayer
+from game.players.random_player import RandomPlayer
+from game.players.neat_player import NEATPlayer
+from game.players.strategy_based_ai import StrategyBasedAIPlayer
+from game.players.rule_based_ai import RuleBasedAIPlayer
 
 from typing import List
 

@@ -1,6 +1,6 @@
-from players import PlayerFactory
-from game.game_manager import GameManager
-from enums import PlayerType
+from game.players import PlayerFactory
+from game.manager import GameManager
+from game.enums import PlayerType
 
 from collections import defaultdict
 

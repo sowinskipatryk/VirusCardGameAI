@@ -1,10 +1,10 @@
-from enums import CardType, TreatmentName, CardColor, OrganState, Action
-from players.base_player import BasePlayer
-from game.game_constants import GameConstants
-from game.game_state import GameState
-from models.cards import Card
-from models.move import Move
-from interface import presenter
+from game.enums import CardType, TreatmentName, CardColor, OrganState, Action
+from game.players.base_player import BasePlayer
+from game.constants import GameConstants
+from game.state import GameState
+from game.models.cards import Card
+from game.models.move import Move
+from game.interface import presenter
 
 from typing import List, Tuple
 from abc import ABC, abstractmethod

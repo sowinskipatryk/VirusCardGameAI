@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import List
-from enums import TreatmentName, CardType, OrganState, CardColor
-from models.move import Move
-from models.organ_states import HealthyStateHandler
+from game.enums import TreatmentName, CardType, OrganState, CardColor
+from game.models.move import Move
+from game.models.organ_states import HealthyStateHandler
 
 
 class Card(ABC):

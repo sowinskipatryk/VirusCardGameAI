@@ -1,14 +1,14 @@
 import copy
 from typing import List
 
-from enums import Action, CardType, TreatmentName, CardColor
-from game.game_state import GameState
-from interface import presenter
-from models.cards import Card
-from players import BasePlayer
-from players.strategy_based_ai.strategies import (MedicalErrorStrategy, OrganStrategy, OrganThiefStrategy,
-                                                  TransplantStrategy, MedicineStrategy, ContagionStrategy,
-                                                  VirusPlayStrategy, LatexGloveStrategy)
+from game.enums import Action, CardType, TreatmentName, CardColor
+from game.state import GameState
+from game.interface import presenter
+from game.models.cards import Card
+from game.players import BasePlayer
+from game.players.strategy_based_ai.strategies import (MedicalErrorStrategy, OrganStrategy, OrganThiefStrategy,
+                                                       TransplantStrategy, MedicineStrategy, ContagionStrategy,
+                                                       VirusPlayStrategy, LatexGloveStrategy)
 
 
 class StrategyBasedAIPlayer(BasePlayer):

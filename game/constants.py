@@ -1,4 +1,4 @@
-from enums import CardColor
+from game.enums import CardColor
 
 
 class GameConstants:

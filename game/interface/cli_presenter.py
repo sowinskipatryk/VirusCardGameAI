@@ -1,4 +1,4 @@
-from interface.base_presenter import BasePresenter
+from game.interface.base_presenter import BasePresenter
 
 
 class CLIPresenter(BasePresenter):

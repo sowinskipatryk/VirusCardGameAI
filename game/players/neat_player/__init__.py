@@ -4,10 +4,10 @@ import pickle
 import os
 from typing import List
 
-from players import BasePlayer
-from enums import Action, CardColor
-from game.game_state import GameState
-from interface import presenter
+from game.players import BasePlayer
+from game.enums import Action, CardColor
+from game.state import GameState
+from game.interface import presenter
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -1,9 +1,9 @@
-from players import PlayerFactory
-from enums import OrganState
-from players import BasePlayer
-from game.game_constants import GameConstants
-from game.game_state import GameState
-from interface import presenter
+from game.players import PlayerFactory
+from game.enums import OrganState
+from game.players import BasePlayer
+from game.constants import GameConstants
+from game.state import GameState
+from game.interface import presenter
 
 
 class GameManager:
@@ -40,10 +40,10 @@ class GameManager:
 
         self.state.complete_hand(self.state.current_player)
 
-        if self.check_win_condition(self.state.current_player):
+        if self.check_win_condition():
             self.game_over = True
             self.winner = self.state.current_player
-            return
+            return self.winner
 
         winner = self.state.get_winner()
         if winner:

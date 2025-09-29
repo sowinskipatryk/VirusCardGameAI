@@ -1,9 +1,9 @@
 import unittest
 
-from players import PlayerFactory
-from enums import PlayerType, OrganState, CardColor
-from models.cards import Organ, Medicine, Virus, Contagion, MedicalError, Transplant, OrganThief, LatexGlove, Move
-from game.game_manager import GameManager
+from game.players import PlayerFactory
+from game.enums import PlayerType, OrganState, CardColor
+from game.models.cards import Organ, Medicine, Virus, Contagion, MedicalError, Transplant, OrganThief, LatexGlove, Move
+from game.manager import GameManager
 
 
 class TestGameManager(unittest.TestCase):

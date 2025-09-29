@@ -71,8 +71,8 @@ Players are instantiated and managed using the `PlayerFactory` class. Each playe
 ### Example: Creating Players
 
 ```python
-from players import PlayerFactory
-from enums import PlayerType
+from game.players import PlayerFactory
+from game.enums import PlayerType
 
 factory = PlayerFactory()
 factory.add_player(PlayerType.HUMAN, "Alice")
@@ -89,7 +89,7 @@ assert factory.is_valid()  # Ensure player count is within allowed range
 The game is managed by the `GameManager` class, which takes a configured `PlayerFactory` and runs the main game loop.
 
 ```python
-from game.game_manager import GameManager
+from game.manager import GameManager
 
 manager = GameManager(factory)
 winner = manager.run()

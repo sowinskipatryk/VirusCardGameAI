@@ -1,8 +1,8 @@
 import random
 from typing import List
 
-from enums import CardColor, Action
-from players import BasePlayer
+from game.enums import CardColor, Action
+from game.players import BasePlayer
 
 
 class RandomPlayer(BasePlayer):

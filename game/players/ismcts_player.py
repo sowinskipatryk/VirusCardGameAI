@@ -1,11 +1,11 @@
 import random
 from typing import List, Optional, Tuple
 
-from enums import Action, CardColor
-from game.game_state import GameState
-from models.cards import Card
-from models.move import Move
-from players.base_player import BasePlayer
+from game.enums import Action, CardColor
+from game.state import GameState
+from game.models.cards import Card
+from game.models.move import Move
+from game.players.base_player import BasePlayer
 
 
 class ISMCTSNode:

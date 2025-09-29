@@ -2,9 +2,9 @@ import copy
 import random
 from collections import defaultdict
 
-from game.game_constants import GameConstants
-from models.deck import Deck
-from enums import CardColor, TreatmentName, CardType, OrganState
+from game.constants import GameConstants
+from game.models.deck import Deck
+from game.enums import CardColor, TreatmentName, CardType, OrganState
 
 
 class GameState:

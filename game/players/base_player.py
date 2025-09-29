@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from models.cards import Card, Organ
-from enums import Action, CardColor, OrganState
-from game.game_state import GameState
-from models.move import Move
-from interface import presenter
+from game.models.cards import Card, Organ
+from game.enums import Action, CardColor, OrganState
+from game.state import GameState
+from game.models.move import Move
+from game.interface import presenter
 
 
 class BasePlayer(ABC):

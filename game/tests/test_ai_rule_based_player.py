@@ -1,8 +1,8 @@
 import unittest
-from enums import CardType, TreatmentName, CardColor, OrganState
-from players.strategy_based_ai import StrategyBasedAIPlayer
-from game.game_state import GameState
-from models.cards import Card, Organ
+from game.enums import CardType, TreatmentName, CardColor, OrganState
+from game.players.strategy_based_ai import StrategyBasedAIPlayer
+from game.state import GameState
+from game.models.cards import Card, Organ
 
 
 class TestRuleBasedAIPlayer(unittest.TestCase):
