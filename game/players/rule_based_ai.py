@@ -342,12 +342,22 @@ class RuleBasedAIPlayer(BasePlayer):
 
         return card_ids
 
-    # added to silence the abstract method warning
+    # these methods are not used since RuleBasedAIPlayer overrides take_turn()
+    # and uses strategies directly. added to satisfy abstract base class.
     def decide_opponent(self, game_state: GameState, card: Card) -> 'BasePlayer':
-        pass
+        raise NotImplementedError(
+            "RuleBasedAIPlayer uses strategies instead of decide_opponent. "
+            "This method should not be called directly."
+        )
 
     def decide_organ_color(self, game_state: GameState, opponent_body=None) -> CardColor:
-        pass
+        raise NotImplementedError(
+            "RuleBasedAIPlayer uses strategies instead of decide_organ_color. "
+            "This method should not be called directly."
+        )
 
-    def decide_action(self, game_state: GameState):
-        pass
+    def decide_action(self, game_state: GameState) -> Action:
+        raise NotImplementedError(
+            "RuleBasedAIPlayer uses strategies instead of decide_action. "
+            "This method should not be called directly."
+        )
