@@ -217,10 +217,18 @@ class Contagion(TreatmentCard):
 
     def play(self, game_state: 'GameState', owner: 'Player', move: 'Move') -> bool:
         infected_organ = move.player_organ
+        
+        # validation: organ must have at least one virus to transfer
+        if not infected_organ or not infected_organ.viruses:
+            return True  # invalid move
+        
+        # get the first virus and transfer it
         virus = infected_organ.viruses[0]
         is_error = virus.play(game_state, owner, move)
         if not is_error:
-            infected_organ.remove_virus()
+            # remove the virus that was transferred
+            infected_organ.viruses.remove(virus)
+            infected_organ.state_handler.remove_virus(infected_organ, virus)
         else:
             return True
         game_state.add_card_to_discard_pile(self)

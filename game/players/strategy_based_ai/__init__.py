@@ -68,19 +68,30 @@ class StrategyBasedAIPlayer(BasePlayer):
             if num_healthy + infected_count >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN:
                 # check if we can transfer enough viruses
                 moves = []
+                # track viruses used to avoid transferring same virus twice
+                virus_count_per_organ = {organ: len(organ.viruses) for organ in infected_organs}
+                
                 for infected in infected_organs:
-                    for virus in infected.viruses:
+                    if not infected.viruses:
+                        continue
+                    for _ in range(virus_count_per_organ[infected]):
+                        if virus_count_per_organ[infected] <= 0:
+                            break
+                        virus = infected.viruses[0]  # will be removed after each transfer
+                        found_target = False
                         for opponent in game_state.get_opponents(self):
                             for opp_organ in opponent.body:
                                 if (opp_organ.state < OrganState.IMMUNISED and
-                                    virus.color in [opp_organ.color, CardColor.WILD] or 
-                                    opp_organ.color == CardColor.WILD):
+                                    (virus.color in [opp_organ.color, CardColor.WILD] or 
+                                     opp_organ.color == CardColor.WILD)):
                                     moves.append(Move(player_organ=infected, opponent=opponent, opponent_organ=opp_organ))
+                                    virus_count_per_organ[infected] -= 1
+                                    found_target = True
                                     break
-                            if len(moves) >= infected_count:
+                            if found_target:
                                 break
-                        if len(moves) >= infected_count:
-                            break
+                    if len(moves) >= infected_count:
+                        break
                 
                 if len(moves) + num_healthy >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN:
                     return contagion, moves

@@ -235,9 +235,9 @@ class ContagionStrategy(CardPlayStrategy):
                          for opponent in opponents
                          for opponent_organ in opponent.body
                          if opponent_organ.state < OrganState.IMMUNISED
-                         and virus.color == opponent_organ.color
-                         or virus.color == CardColor.WILD
-                         or (opponent_organ.color == CardColor.WILD and virus.color not in opponent.organ_colors)]
+                         and (virus.color == opponent_organ.color
+                              or virus.color == CardColor.WILD
+                              or (opponent_organ.color == CardColor.WILD and virus.color not in opponent.organ_colors))]
 
         if not valid_choices:
             return
