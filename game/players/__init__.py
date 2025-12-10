@@ -2,7 +2,6 @@ from game.enums import PlayerType
 from game.constants import GameConstants
 from game.players.base_player import BasePlayer
 from game.players.dqn_player import DQNPlayer
-from game.players.mcts_player import MCTSPlayer
 from game.players.ismcts_player import ISMCTSPlayer
 from game.players.human_player import HumanPlayer
 from game.players.random_player import RandomPlayer
@@ -24,7 +23,6 @@ class PlayerFactory:
         PlayerType.STRATEGY_BASED_AI: StrategyBasedAIPlayer,
         PlayerType.RULE_BASED_AI: RuleBasedAIPlayer,
         PlayerType.DQN_AI: DQNPlayer,
-        PlayerType.MCTS_AI: MCTSPlayer,
         PlayerType.ISMCTS_AI: ISMCTSPlayer,
     }
 

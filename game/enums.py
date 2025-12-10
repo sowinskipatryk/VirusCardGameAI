@@ -35,7 +35,6 @@ class PlayerType(StrEnum):
     RULE_BASED_AI = "RuleBasedAI"
     STRATEGY_BASED_AI = "StrategyBasedAI"
     DQN_AI = 'DQN_AI'
-    MCTS_AI = 'MCTS_AI'
     ISMCTS_AI = 'ISMCTS_AI'
 
 
