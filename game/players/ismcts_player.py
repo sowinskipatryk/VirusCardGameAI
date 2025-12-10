@@ -121,15 +121,19 @@ class ISMCTSPlayer(BasePlayer):
                     prepared = card.prepare_moves(player, sim) or []
                     if prepared:
                         options.append((card, prepared))
+            
             if options:
-                card, prepared_moves = random.choice(options)
-                move = random.choice(prepared_moves)
-                card.play(sim, player, move)
-                player.hand.remove(card)
+                # use heuristic move selection
+                card, move = self._select_heuristic_move(sim, player, options)
+                if card and move:
+                    card.play(sim, player, move)
+                    if card in player.hand:
+                        player.hand.remove(card)
             else:
-                # discard random card
+                # discard unplayable cards
                 if player.hand:
-                    card = random.choice(player.hand)
+                    unplayable = [c for c in player.hand if not c.can_be_played(sim, player)]
+                    card = random.choice(unplayable) if unplayable else random.choice(player.hand)
                     player.hand.remove(card)
                     sim.add_card_to_discard_pile(card)
             
@@ -138,6 +142,46 @@ class ISMCTSPlayer(BasePlayer):
         
         winner = sim.get_winner()
         return winner is not None and winner.name == self.name
+    
+    def _select_heuristic_move(self, state: GameState, player, options: List[Tuple[Card, List[Move]]]) -> Tuple[Card, Move]:
+        from game.enums import CardType, OrganState
+        
+        # priority 1: check for winning moves (play organ if we have 3 healthy)
+        healthy_count = len([o for o in player.body if o.state >= OrganState.HEALTHY])
+        if healthy_count >= 3:
+            for card, moves in options:
+                if card.type == CardType.ORGAN and card.color not in [o.color for o in player.body]:
+                    return card, moves[0] if moves else None
+        
+        # priority 2: play organs
+        for card, moves in options:
+            if card.type == CardType.ORGAN:
+                return card, moves[0] if moves else None
+        
+        # priority 3: play medicine on own organs
+        for card, moves in options:
+            if card.type == CardType.MEDICINE:
+                return card, moves[0] if moves else None
+        
+        # priority 4: play virus on opponent with most organs
+        virus_options = [(c, m) for c, m in options if c.type == CardType.VIRUS]
+        if virus_options:
+            # prefer targeting player with most healthy organs
+            best_option = None
+            best_score = -1
+            for card, moves in virus_options:
+                for move in moves:
+                    if move.opponent:
+                        score = len(move.opponent.body)
+                        if score > best_score:
+                            best_score = score
+                            best_option = (card, move)
+            if best_option:
+                return best_option
+        
+        # priority 5: any remaining option
+        card, moves = random.choice(options)
+        return card, moves[0] if moves else None
 
     def _backpropagate(self, node: ISMCTSNode, win: bool) -> None:
         while node:
