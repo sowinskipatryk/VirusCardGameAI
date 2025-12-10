@@ -31,7 +31,7 @@ class GameManager:
         healthy_organs = [organ for organ in self.state.current_player.body if organ.state != OrganState.INFECTED]
         return len(healthy_organs) >= GameConstants.NUM_HEALTHY_ORGANS_TO_WIN  # check if player has X healthy (or vaccinated or immunised) organs
 
-    def play_turn(self) -> BasePlayer:
+    def play_turn(self) -> BasePlayer | None:
         presenter.print_separator()
         presenter.print_state(self._compose_state_info(self.state.current_player))
 
@@ -43,12 +43,8 @@ class GameManager:
         if self.check_win_condition():
             self.game_over = True
             self.winner = self.state.current_player
+            self.state.winner = self.state.current_player
             return self.winner
-
-        winner = self.state.get_winner()
-        if winner:
-            presenter.print_state(self._compose_state_info(self.state.current_player))
-            return winner
 
         self.state.next_player()
 

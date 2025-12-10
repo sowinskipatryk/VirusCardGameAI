@@ -102,9 +102,18 @@ class ISMCTSPlayer(BasePlayer):
 
     def _simulate(self, state: GameState) -> bool:
         sim = state.clone()
-        while not sim.is_game_over():
+        max_simulation_turns = 1000
+        turn_count = 0
+        
+        while not sim.is_game_over() and turn_count < max_simulation_turns:
             player = sim.get_current_player()
             sim.complete_hand(player)
+
+            # check win condition for current player
+            if sim.check_win_condition(player):
+                sim.winner = player
+                break
+            
             # gather playable with valid moves
             options: List[Tuple[Card, List[Move]]] = []
             for card in list(player.hand):
@@ -123,8 +132,12 @@ class ISMCTSPlayer(BasePlayer):
                     card = random.choice(player.hand)
                     player.hand.remove(card)
                     sim.add_card_to_discard_pile(card)
+            
             sim.next_player()
-        return sim.get_winner() == self.name
+            turn_count += 1
+        
+        winner = sim.get_winner()
+        return winner is not None and winner.name == self.name
 
     def _backpropagate(self, node: ISMCTSNode, win: bool) -> None:
         while node:

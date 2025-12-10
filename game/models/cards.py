@@ -250,9 +250,9 @@ class Transplant(TreatmentCard):
         stolen_organ = move.opponent_organ
         given_organ = move.player_organ
         target.remove_organ_from_body(stolen_organ)
-        owner.add_organ_to_body(stolen_organ)
         owner.remove_organ_from_body(given_organ)
         target.add_organ_to_body(given_organ)
+        owner.add_organ_to_body(stolen_organ)
         game_state.add_card_to_discard_pile(self)
 
     def can_be_played(self, game_state: 'GameState', owner: 'Player') -> bool:
