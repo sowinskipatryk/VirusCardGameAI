@@ -69,23 +69,36 @@ class WinningMoveStrategy(CardPlayStrategy):
                         if OrganState.HEALTHY <= opponent_organ.state < OrganState.IMMUNISED:
                             if opponent_organ.color == CardColor.WILD:
                                 sorted_organs = sorted(player.body, key=lambda x: -len(x.viruses))
-                                if sorted_organs[0].state < opponent_organ.state and sorted_organs[
-                                    0].color not in opponent.organ_colors and opponent_organ.color not in player.organ_colors:
+                                player_organ_to_give = sorted_organs[0]
+                                # check remaining colors AFTER removing the organ being swapped
+                                player_remaining_colors = [o.color for o in player.body if o != player_organ_to_give]
+                                opponent_remaining_colors = [o.color for o in opponent.body if o != opponent_organ]
+                                if (player_organ_to_give.state < opponent_organ.state and 
+                                    player_organ_to_give.color not in opponent_remaining_colors and 
+                                    opponent_organ.color not in player_remaining_colors):
                                     moves_to_play.append(Move(opponent=opponent,
-                                                              player_organ=sorted_organs[0],
+                                                              player_organ=player_organ_to_give,
                                                               opponent_organ=opponent_organ))
                                     return card, moves_to_play
                             else:
                                 player_organ_same_color = player.get_organ_by_color(opponent_organ.color)
                                 if player_organ_same_color and player_organ_same_color.state < opponent_organ.state:
-                                    moves_to_play.append(Move(opponent=opponent,
-                                                              player_organ=player_organ_same_color,
-                                                              opponent_organ=opponent_organ))
-                                    return card, moves_to_play
+                                    # check that no OTHER organ has the same color (Wild card edge case)
+                                    player_remaining_colors = [o.color for o in player.body if o != player_organ_same_color]
+                                    if opponent_organ.color not in player_remaining_colors:
+                                        moves_to_play.append(Move(opponent=opponent,
+                                                                  player_organ=player_organ_same_color,
+                                                                  opponent_organ=opponent_organ))
+                                        return card, moves_to_play
 
                                 elif not player_organ_same_color:
                                     for player_organ in player.body:
-                                        if player_organ.state < opponent_organ.state and player_organ.color not in opponent.organ_colors and opponent_organ.color not in player.organ_colors:
+                                        # check remaining colors AFTER removing the organ being swapped
+                                        player_remaining_colors = [o.color for o in player.body if o != player_organ]
+                                        opponent_remaining_colors = [o.color for o in opponent.body if o != opponent_organ]
+                                        if (player_organ.state < opponent_organ.state and 
+                                            player_organ.color not in opponent_remaining_colors and 
+                                            opponent_organ.color not in player_remaining_colors):
                                             moves_to_play.append(Move(opponent=opponent,
                                                                       player_organ=player_organ,
                                                                       opponent_organ=opponent_organ))
@@ -149,13 +162,21 @@ class TransplantStrategy(CardPlayStrategy):
             return
 
         opponents = game_state.get_opponents(player)
-        valid_choices = [(opponent, opponent_organ, player_organ)
-                         for opponent in opponents
-                         for opponent_organ in opponent.body
-                         for player_organ in player.body
-                         if player_organ.state <= opponent_organ.state < OrganState.IMMUNISED
-                         and player_organ.color not in opponent.organ_colors
-                         and opponent_organ.color not in player.organ_colors]
+        valid_choices = []
+        
+        for opponent in opponents:
+            for opponent_organ in opponent.body:
+                for player_organ in player.body:
+                    if not (player_organ.state <= opponent_organ.state < OrganState.IMMUNISED):
+                        continue
+                    
+                    # check remaining colors AFTER removing the organs being swapped
+                    player_remaining_colors = [o.color for o in player.body if o != player_organ]
+                    opponent_remaining_colors = [o.color for o in opponent.body if o != opponent_organ]
+                    
+                    if (player_organ.color not in opponent_remaining_colors and
+                        opponent_organ.color not in player_remaining_colors):
+                        valid_choices.append((opponent, opponent_organ, player_organ))
 
         if not valid_choices:
             return

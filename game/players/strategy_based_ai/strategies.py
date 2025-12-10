@@ -61,13 +61,21 @@ class TransplantStrategy(CardPlayStrategy):
     def apply(self, player, game_state):
         card = player.get_hand_card_by_name(TreatmentName.TRANSPLANT)
         opponents = game_state.get_opponents(player)
-        valid_choices = [(opponent, opponent_organ, player_organ)
-                         for opponent in opponents
-                         for opponent_organ in opponent.body
-                         for player_organ in player.body
-                         if player_organ.state <= opponent_organ.state < OrganState.IMMUNISED
-                         and player_organ.color not in opponent.organ_colors
-                         and opponent_organ.color not in player.organ_colors]
+        valid_choices = []
+        
+        for opponent in opponents:
+            for opponent_organ in opponent.body:
+                for player_organ in player.body:
+                    if not (player_organ.state <= opponent_organ.state < OrganState.IMMUNISED):
+                        continue
+                    
+                    # check remaining colors AFTER removing the organs being swapped
+                    player_remaining_colors = [o.color for o in player.body if o != player_organ]
+                    opponent_remaining_colors = [o.color for o in opponent.body if o != opponent_organ]
+                    
+                    if (player_organ.color not in opponent_remaining_colors and
+                        opponent_organ.color not in player_remaining_colors):
+                        valid_choices.append((opponent, opponent_organ, player_organ))
 
         if not valid_choices:
             return

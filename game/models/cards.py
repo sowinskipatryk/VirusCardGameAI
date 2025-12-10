@@ -187,6 +187,11 @@ class OrganThief(TreatmentCard):
     def play(self, game_state: 'GameState', owner: 'Player', move: 'Move') -> bool:
         target = move.opponent
         target_organ = move.opponent_organ
+        
+        # validation: can't steal organ if we already have that color
+        if target_organ.color in owner.organ_colors:
+            return True
+        
         target.remove_organ_from_body(target_organ)
         owner.add_organ_to_body(target_organ)
         game_state.add_card_to_discard_pile(self)
@@ -249,6 +254,17 @@ class Transplant(TreatmentCard):
         target = move.opponent
         stolen_organ = move.opponent_organ
         given_organ = move.player_organ
+        
+        # validate move to prevent crashes from edge cases (e.g. Wild organs)
+        # check colors AFTER removing the organs being swapped
+        owner_remaining_colors = [o.color for o in owner.body if o != given_organ]
+        target_remaining_colors = [o.color for o in target.body if o != stolen_organ]
+        
+        if stolen_organ.color in owner_remaining_colors:
+            return True  # invalid: would create duplicate color for owner
+        if given_organ.color in target_remaining_colors:
+            return True  # invalid: would create duplicate color for target
+        
         target.remove_organ_from_body(stolen_organ)
         owner.remove_organ_from_body(given_organ)
         target.add_organ_to_body(given_organ)
